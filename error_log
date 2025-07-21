@@ -1,0 +1,11 @@
+[29-Aug-2024 16:20:42 UTC] PHP Warning:  require(/home/prtald/public_html/eportal/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/prtald/public_html/eportal/index.php on line 34
+[29-Aug-2024 16:20:42 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/prtald/public_html/eportal/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home/prtald/public_html/eportal/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/prtald/public_html/eportal/index.php on line 34
+[29-Aug-2024 16:20:45 UTC] PHP Warning:  require(/home/prtald/public_html/eportal/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/prtald/public_html/eportal/index.php on line 34
+[29-Aug-2024 16:20:45 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/prtald/public_html/eportal/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home/prtald/public_html/eportal/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/prtald/public_html/eportal/index.php on line 34
+[20-Sep-2024 20:01:33 UTC] PHP Fatal error:  Trait "App\Traits\ValidatesPortalUser" not found in /home/prtald/public_html/eportal/app/Http/Controllers/PortalController.php on line 15
