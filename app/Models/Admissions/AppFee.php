@@ -26,8 +26,11 @@ class AppFee extends Model
         return $this->belongsTo(AppField::class, 'item_id', 'field_id');
     }
 
-    public static function getApplicantFees(int $progId, int $progTypeId): array
+    public static function getApplicantFees(array $userData): array
     {
+        $progId = is_array($userData['programme']) ? ($userData['programme']['programme_id'] ?? null) : $userData['programme'];
+        $progTypeId = is_array($userData['programmeType']) ? ($userData['programmeType']['programmet_id'] ?? null) : $userData['programmeType'];
+
         // Retrieve all matching fee records
         $fees = self::where(function ($query) use ($progId) {
             $query->where('prog_id', $progId)

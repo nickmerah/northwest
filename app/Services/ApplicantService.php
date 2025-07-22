@@ -2,7 +2,8 @@
 
 namespace App\Services;
 
-use App\Repositories\ApplicantRepositoryInterface;
+use App\Interfaces\ApplicantRepositoryInterface;
+
 
 class ApplicantService
 {
@@ -13,9 +14,9 @@ class ApplicantService
         $this->applicantRepository = $applicantRepository;
     }
 
-    public function getdashBoardData(): ?array
+    public function getdashBoardData($request): ?array
     {
-        $response = $this->applicantRepository->getdashBoardData();
+        $response = $this->applicantRepository->getdashBoardData($request);
         return $response;
     }
 }

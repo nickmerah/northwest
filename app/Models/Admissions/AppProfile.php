@@ -8,12 +8,14 @@ use Illuminate\Support\Str;
 use App\Models\ProgrammeType;
 use App\Models\StateOfOrigin;
 use App\Models\DepartmentOptions;
+use App\Traits\HasDynamicIncludes;
 use Illuminate\Database\Eloquent\Model;
+use Symfony\Component\HttpFoundation\Request;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class AppProfile extends Model
 {
-    use HasFactory;
+    use HasFactory, HasDynamicIncludes;
 
     protected $table = 'jprofile';
     protected $primaryKey = 'std_id';
@@ -119,42 +121,42 @@ class AppProfile extends Model
         $this->attributes['student_email'] = strtolower($value);
     }
 
-    public static function getUserData(int $userId): array
+    public static function getUserData(int $userId, ?Request $request): array
     {
-        $applicant = self::where('std_logid', $userId)->first();
+        $applicant = AppProfile::query()
+            ->withDynamicIncludes($request)
+            ->where('std_logid', $userId)
+            ->firstOrFail();
 
-        if ($applicant) {
+        $data = (object) $applicant->toArrayWithDynamicIncludes($request);
+
+        if ($data) {
             return [
-                'applicationNumber' => $applicant->app_no,
-                'surname' => $applicant->surname,
-                'firstname' => $applicant->firstname,
-                'othernames' => $applicant->othernames,
-                'gender' => $applicant->gender,
-                'profile_id' => $applicant->profile_id,
-                'maritalStatus' => $applicant->marital_status,
-                'birthDate' => $applicant->birthdate,
-                'lga' => $applicant?->lga?->lga_name,
-                'stateofOrigin' => $applicant?->stateoforigin?->state_name,
-                'stateofOriginId' => $applicant?->state_of_origin,
-                'contactAddress' => $applicant->contact_address,
-                'studentEmail' => $applicant->student_email,
-                'studentHomeAddress' => $applicant?->student_homeaddress,
-                'studentPhoneNo' => $applicant?->student_mobiletel,
-                'homeTown' => $applicant?->hometown,
-                'nextofKin' => $applicant?->next_of_kin,
-                'nextofKinAddress' => $applicant?->nok_address,
-                'nextofKinEmail' => $applicant?->nok_email,
-                'nextofKinPhoneNo' => $applicant?->nok_tel,
-                'nextofKinRelationship' => $applicant?->nok_rel,
-                'programme' => $applicant?->programme->programme_name,
-                'programmeId' => $applicant?->stdprogramme_id,
-                'programmeAbbrev' => $applicant?->programme->aprogramme_name,
-                'programmeType' => $applicant?->programmeType->programmet_name,
-                'programmeTypeId' => $applicant?->std_programmetype,
-                'firstChoiceCourse' => $applicant?->firstChoiceCourse->programme_option,
-                'secondChoiceCourse' => $applicant?->secondChoiceCourse->programme_option,
-                'courseofStudyId' => $applicant?->stdcourse,
-                'profilePicture' => $applicant?->std_photo,
+                'applicationNumber' => $data->app_no,
+                'surname' => $data->surname,
+                'firstname' => $data->firstname,
+                'othernames' => $data->othernames,
+                'gender' => $data->gender,
+                'profile_id' => $data->profile_id,
+                'maritalStatus' => $data->marital_status,
+                'birthDate' => $data->birthdate,
+                'lga' => $data?->local_gov,
+                'stateofOrigin' => $data?->state_of_origin,
+                'contactAddress' => $data->contact_address,
+                'studentEmail' => $data->student_email,
+                'studentHomeAddress' => $data?->student_homeaddress,
+                'studentPhoneNo' => $data?->student_mobiletel,
+                'homeTown' => $data?->hometown,
+                'nextofKin' => $data?->next_of_kin,
+                'nextofKinAddress' => $data?->nok_address,
+                'nextofKinEmail' => $data?->nok_email,
+                'nextofKinPhoneNo' => $data?->nok_tel,
+                'nextofKinRelationship' => $data?->nok_rel,
+                'programme' => $data?->stdprogramme_id,
+                'programmeType' => $data?->std_programmetype,
+                'firstChoiceCourse' => $data->stdcourse,
+                'secondChoiceCourse' => $data?->std_course,
+                'profilePicture' => $data?->std_photo,
             ];
         }
 

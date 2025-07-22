@@ -2,12 +2,14 @@
 
 namespace App\Repositories;
 
-use App\Models\Admissions\AppSession;
 use App\Models\DepartmentOptions;
 use Illuminate\Support\Facades\DB;
 use App\Models\Admissions\AppLogin;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Admissions\AppProfile;
+use App\Models\Admissions\AppSession;
+use App\Interfaces\AccountRepositoryInterface;
+
 
 class AccountRepository implements AccountRepositoryInterface
 {
@@ -93,6 +95,29 @@ class AccountRepository implements AccountRepositoryInterface
         return [
             'success' => true,
             'user' => Auth::user(),
+        ];
+    }
+
+    public function resetPassword(array $data): ?array
+    {
+        $username = $data['username'];
+
+        if (!self::usernameAlreadyExists($username)) {
+            return [
+                'success' => false,
+                'message' => 'Invalid credentials',
+            ];
+        }
+
+        $user = AppLogin::where('log_username', $username)->first();
+        $genPass = rand(00000, 999999);
+        $user->log_password = $genPass;
+        $user->save();
+
+        return [
+            'success' => true,
+            'user' => $username,
+            'passkey' => $genPass,
         ];
     }
 }

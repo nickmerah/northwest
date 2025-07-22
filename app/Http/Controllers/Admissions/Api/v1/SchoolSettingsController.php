@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Admissions\Api\v1;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Repositories\SchoolSettingsRepositoryInterface;
+use App\Interfaces\SchoolSettingsRepositoryInterface;
 use Symfony\Component\HttpFoundation\Response as ApiJsonResponse;
 
 class SchoolSettingsController extends Controller

@@ -6,10 +6,11 @@ use Illuminate\Support\Facades\View;
 use App\Repositories\AccountRepository;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\ApplicantRepository;
+use App\Interfaces\AccountRepositoryInterface;
 use App\Repositories\SchoolSettingsRepository;
-use App\Repositories\AccountRepositoryInterface;
-use App\Repositories\ApplicantRepositoryInterface;
-use App\Repositories\SchoolSettingsRepositoryInterface;
+use App\Interfaces\ApplicantRepositoryInterface;
+use App\Interfaces\SchoolSettingsRepositoryInterface;
+
 
 class AppServiceProvider extends ServiceProvider
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Interfaces;
 
 use App\Models\Admissions\AppProfile;
 
@@ -15,4 +15,6 @@ interface AccountRepositoryInterface
     public function usernameAlreadyExists(string $username): bool;
 
     public function loginAccount(array $data): ?array;
+
+    public function resetPassword(array $data): ?array;
 }

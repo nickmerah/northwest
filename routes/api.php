@@ -23,11 +23,10 @@ Route::prefix('v1')->group(function () {
     Route::get('/courses-of-study/{programmeId}/{programmeTypeId}', [SchoolSettingsController::class, 'getCoursesOfStudy']);
     Route::post('/register', [AccountController::class, 'register']);
     Route::post('/login', [AccountController::class, 'login']);
+    Route::post('/forgotpassword', [AccountController::class, 'resetpassword']);
 
     Route::middleware('auth:api')->group(function () {
         Route::get('/dashboard', [DashBoardController::class, 'index']);
-       // Route::get('/logout', [AccountController::class, 'logout']);
+        // Route::get('/logout', [AccountController::class, 'logout']);
     });
-
-    
 });

@@ -31,44 +31,28 @@ class ApiResponse
         switch (true) {
             case $data instanceof JsonResource:
                 $data = $data->resolve();
-                $total = 1;
                 break;
 
             case $data instanceof Collection:
-                $total = $data->count();
                 $data = $data->toArray();
                 break;
 
             case is_array($data):
-                $total = count($data);
                 break;
 
             case $data instanceof Model:
-                $total = 1;
                 $data = [$data];
                 break;
 
             default:
-                $total = 0;
                 $data = [];
                 break;
         }
-        $perPage = (int) request()->get('per_page', 100);
-        $page = (int)request()->get('page', 1);
-        $offset = ($page - 1) * $perPage;
-        $paginatedData = array_slice($data, $offset, $perPage);
 
         return response()->json([
             'status' => $status,
             'message' => $message,
-            'record_count' => count($paginatedData),
-            'data' => $paginatedData,
-            'pagination' => [
-                'total' => $total,
-                'per_page' => (int) $perPage,
-                'current_page' => (int) $page,
-                'last_page' => (int) ceil($total / $perPage),
-            ],
+            'data' => $data,
         ], $statusCode);
     }
 

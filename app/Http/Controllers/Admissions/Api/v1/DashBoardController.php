@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admissions\Api\v1;
 use App\Helpers\ApiResponse;
 use App\Services\ApplicantService;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class DashBoardController extends Controller
@@ -17,11 +17,11 @@ class DashBoardController extends Controller
         $this->applicantService = $applicantService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $response = $this->applicantService->getDashBoardData($request);
 
         try {
-            $response = $this->applicantService->getDashBoardData();
 
             if ($response && $response['success']) {
                 return ApiResponse::success(

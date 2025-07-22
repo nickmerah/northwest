@@ -7,7 +7,8 @@ use App\Helpers\AccountHelper;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use App\Http\Resources\AppLoginResource;
-use App\Repositories\AccountRepositoryInterface;
+use App\Interfaces\AccountRepositoryInterface;
+
 
 
 class AccountService
@@ -90,5 +91,12 @@ class AccountService
             'user' => new AppLoginResource($response['user']),
             'token' => $tokenData,
         ];
+    }
+
+    public function resetPassword($request)
+    {
+        $username = $request->only('username');
+
+        return $this->accountRepository->resetPassword($username);
     }
 }

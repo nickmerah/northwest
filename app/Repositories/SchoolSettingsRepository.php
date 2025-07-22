@@ -6,6 +6,8 @@ use App\Models\Programmes;
 use App\Models\SchoolInfo;
 use App\Models\ProgrammeType;
 use App\Models\DepartmentOptions;
+use App\Interfaces\SchoolSettingsRepositoryInterface;
+
 
 class SchoolSettingsRepository implements SchoolSettingsRepositoryInterface
 {
