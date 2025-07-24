@@ -4,20 +4,21 @@ namespace App\Services;
 
 use Exception;
 use App\Helpers\AccountHelper;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Http;
 use App\Http\Resources\AppLoginResource;
 use App\Interfaces\AccountRepositoryInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 
 
 class AccountService
 {
     protected $accountRepository;
+    protected $accountHelper;
 
-    public function __construct(AccountRepositoryInterface $accountRepository)
+    public function __construct(AccountRepositoryInterface $accountRepository, AccountHelper $accountHelper)
     {
         $this->accountRepository = $accountRepository;
+        $this->accountHelper = $accountHelper;
     }
 
     public function accountRegister($request)
@@ -28,18 +29,19 @@ class AccountService
         if (isset($request['captcha'])) {
             $captchaResult = AccountHelper::validateCaptcha($request['captcha'], $request['firstNumber'], $request['secondNumber']);
             if (!$captchaResult) {
-                throw new Exception('Captcha validation failed.');
+                abort(Response::HTTP_BAD_REQUEST, 'Captcha validation failed.');
+                
             }
         }
 
         // need to check if portal is closed
         if (!$this->accountRepository->isPortalClosed($request['prog'])) {
-            throw new Exception('Portal is CLOSED to Admission Application.');
+            abort(Response::HTTP_BAD_REQUEST, 'Portal is CLOSED to Admission Application.');
         }
 
         // check if programme is disabled
         if ($this->accountRepository->isProgrammeDisabled($request['progtype'], $request['cos_id'], $request['cos_id_two'])) {
-            throw new Exception('You have chosen a course of study that is disabled, contact the school admin.');
+            abort(Response::HTTP_BAD_REQUEST, 'You have chosen a course of study that is disabled, contact the school admin.');
         }
 
 
@@ -48,7 +50,7 @@ class AccountService
 
         // check if the user already exists
         if ($this->accountRepository->usernameAlreadyExists($request['username'])) {
-            throw new Exception('Application number already exists, try again!');
+            abort(Response::HTTP_BAD_REQUEST, 'Application number already exists, try again!');
         }
 
         return $this->accountRepository->registerAccount($request);
@@ -56,40 +58,22 @@ class AccountService
 
     public function accountLogin($request)
     {
-        $request = $request->only('username', 'password');
+        $credentials = $request->only('username', 'password');
 
-        $response = $this->accountRepository->loginAccount($request);
+        $response = $this->accountRepository->loginAccount($credentials);
 
         if (!isset($response['success'])) {
-            throw new Exception($response['message']);
+            abort(Response::HTTP_BAD_REQUEST, $response['message']);
         }
 
-        try {
-            $tokenResponse = Http::asForm()->post(env('APP_URL') . '/oauth/token', [
-                'grant_type' => 'password',
-                'client_id' => env('PERSONAL_ACCESS_CLIENT_ID'),
-                'client_secret' => env('PERSONAL_ACCESS_CLIENT_SECRET'),
-                'username' => $request['username'],
-                'password' => $request['password'],
-                'scope' => '*',
-            ]);
-        } catch (\Exception $e) {
-            throw new Exception('Token request failed');
-        }
-
-        if ($tokenResponse->failed()) {
-            throw new Exception('Token request failed');
-        }
-
-        $tokenData = $tokenResponse->json();
-
-        // Calculate expires_at from current time + expires_in
-        $tokenData['expires_at'] = Carbon::now()->addSeconds($tokenData['expires_in']);
+        $userId = $response['user']['log_id'];
+        $token = $this->accountHelper->generateOAuthToken($credentials);
+        $this->accountHelper->cacheApplicantData($userId);
 
         return [
             'success' => true,
             'user' => new AppLoginResource($response['user']),
-            'token' => $tokenData,
+            'token' => $token,
         ];
     }
 

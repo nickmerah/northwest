@@ -80,6 +80,11 @@ class AccountRepository implements AccountRepositoryInterface
         return AppLogin::where('log_username', $username)->first();
     }
 
+    public function getApplicantDetails(int $applicantId): ?AppProfile
+    {
+        return AppProfile::where('std_logid', $applicantId)->first();
+    }
+
     public function loginAccount(array $data): ?array
     {
         if (!Auth::attempt([

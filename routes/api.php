@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admissions\Api\V1\AccountController;
+use App\Http\Controllers\Admissions\Api\v1\PaymentController;
 use App\Http\Controllers\Admissions\Api\v1\DashBoardController;
 use App\Http\Controllers\Admissions\Api\v1\SchoolSettingsController;
 
@@ -27,6 +28,13 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:api')->group(function () {
         Route::get('/dashboard', [DashBoardController::class, 'index']);
+        Route::post('/makepayment', [PaymentController::class, 'paynow']);
+        Route::post('/verifypayment', [PaymentController::class, 'paynow']);
+        
+        
         // Route::get('/logout', [AccountController::class, 'logout']);
     });
+
+    Route::get('/paystackpaymentresponse', [PaymentController::class, 'paystackpaymentresponse'])->name('paystackpaymentresponse');
+    Route::get('/paystackcancelaction', [PaymentController::class, 'paystackcancelaction'])->name('paystackcancelaction');
 });

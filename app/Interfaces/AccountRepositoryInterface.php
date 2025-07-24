@@ -17,4 +17,6 @@ interface AccountRepositoryInterface
     public function loginAccount(array $data): ?array;
 
     public function resetPassword(array $data): ?array;
+
+    public function getApplicantDetails(int $applicantId): ?AppProfile;
 }

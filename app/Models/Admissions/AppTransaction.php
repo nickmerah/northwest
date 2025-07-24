@@ -35,7 +35,8 @@ class AppTransaction extends Model
         'appno',
         'paychannel',
         'semail',
-        'rrr'
+        'rrr',
+        'redirect_url'
     ];
 
     protected $casts = [
