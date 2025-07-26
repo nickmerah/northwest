@@ -13,4 +13,10 @@ interface PaymentRepositoryInterface
     public function saveTransaction(array $data, array $feesToPay, array $paystackResponse, string $gateway, string $redirectUrl): void;
 
     public function fetchTransactionDetails(string $transactionId): array;
+
+    public function updatePayment(string $transactionId): array;
+
+    public function getAllTransactionsByGateway(string $gateway, int $applicantId): array;
+
+    public static function getAllPaidTransactions(): array;
 }

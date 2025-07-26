@@ -126,7 +126,11 @@ class AppProfile extends Model
         $applicant = AppProfile::query()
             ->withDynamicIncludes($request)
             ->where('std_logid', $userId)
-            ->firstOrFail();
+            ->first();
+
+        if (!$applicant) {
+            return [];
+        }
 
         $data = (object) $applicant->toArrayWithDynamicIncludes($request);
 

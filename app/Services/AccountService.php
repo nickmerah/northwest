@@ -30,7 +30,6 @@ class AccountService
             $captchaResult = AccountHelper::validateCaptcha($request['captcha'], $request['firstNumber'], $request['secondNumber']);
             if (!$captchaResult) {
                 abort(Response::HTTP_BAD_REQUEST, 'Captcha validation failed.');
-                
             }
         }
 

@@ -40,7 +40,7 @@ class DashBoardController extends Controller
         } catch (\Exception $e) {
             return ApiResponse::error(
                 status: 'error',
-                message: 'Error retrieving Dashboard Data.',
+                message: $e->getMessage(),
                 statusCode: Response::HTTP_UNAUTHORIZED
             );
         }

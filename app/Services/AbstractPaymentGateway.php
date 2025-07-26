@@ -65,4 +65,6 @@ abstract class AbstractPaymentGateway implements PaymentGateway
 
         return $feeDetails;
     }
+
+    
 }

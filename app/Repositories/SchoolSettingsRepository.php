@@ -2,10 +2,13 @@
 
 namespace App\Repositories;
 
+use App\Models\Lga;
 use App\Models\Programmes;
 use App\Models\SchoolInfo;
 use App\Models\ProgrammeType;
+use App\Models\StateOfOrigin;
 use App\Models\DepartmentOptions;
+use Illuminate\Support\Facades\DB;
 use App\Interfaces\SchoolSettingsRepositoryInterface;
 
 
@@ -45,5 +48,23 @@ class SchoolSettingsRepository implements SchoolSettingsRepositoryInterface
         }
 
         return $query->get();
+    }
+
+    public function getStateofOrigin(): array
+    {
+        return StateOfOrigin::select('state_id', 'state_name')->get()->toArray();
+    }
+
+    public function getLGAByStateId($stateId): array
+    {
+        return Lga::select('lga_id', 'lga_name')
+            ->where('state_id', $stateId)
+            ->get()
+            ->toArray();
+    }
+
+    public function getOlevelSubjects(): array
+    {
+        return DB::table('subjects')->select('subjectname')->get()->toArray();
     }
 }

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Admissions\Api\v1;
 
 
+use App\Http\Requests\Lga;
 use App\Helpers\ApiResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Helpers\SchoolSettingsHelper;
 use App\Interfaces\SchoolSettingsRepositoryInterface;
 use Symfony\Component\HttpFoundation\Response as ApiJsonResponse;
 
@@ -94,6 +97,78 @@ class SchoolSettingsController extends Controller
             status: 'success',
             message: 'Course of study retrieved successfully.',
             data: $courseofstudy,
+            statusCode: ApiJsonResponse::HTTP_OK
+        );
+    }
+
+    public function getStateofOrigin(): JsonResponse
+    {
+        $stateoforigin = $this->schoolSettingsRepository->getStateofOrigin();
+
+        if (!$stateoforigin) {
+            return ApiResponse::error(
+                status: 'error',
+                message: 'No state of origin found.',
+                statusCode: ApiJsonResponse::HTTP_NOT_FOUND
+            );
+        }
+
+        return ApiResponse::success(
+            status: 'success',
+            message: 'State of origin retrieved successfully.',
+            data: $stateoforigin,
+            statusCode: ApiJsonResponse::HTTP_OK
+        );
+    }
+
+    public function getLga(Lga $request): JsonResponse
+    {
+        $lga = $this->schoolSettingsRepository->getLGAByStateId($request->stateId);
+
+        if (!$lga) {
+            return ApiResponse::error(
+                status: 'error',
+                message: 'No LGA found.',
+                statusCode: ApiJsonResponse::HTTP_NOT_FOUND
+            );
+        }
+
+        return ApiResponse::success(
+            status: 'success',
+            message: 'LGA retrieved successfully.',
+            data: $lga,
+            statusCode: ApiJsonResponse::HTTP_OK
+        );
+    }
+
+    public function getOlevelSubjects(Lga $request): JsonResponse
+    {
+        $subjects = $this->schoolSettingsRepository->getOlevelSubjects();
+
+        if (!$subjects) {
+            return ApiResponse::error(
+                status: 'error',
+                message: 'No Subjects found.',
+                statusCode: ApiJsonResponse::HTTP_NOT_FOUND
+            );
+        }
+
+        return ApiResponse::success(
+            status: 'success',
+            message: 'Olevel Subjects retrieved successfully.',
+            data: $subjects,
+            statusCode: ApiJsonResponse::HTTP_OK
+        );
+    }
+
+    public function getOlevelGrades()
+    {
+        $grades = SchoolSettingsHelper::olevelGrades();
+
+        return ApiResponse::success(
+            status: 'success',
+            message: 'Olevel Grades retrieved successfully.',
+            data: $grades,
             statusCode: ApiJsonResponse::HTTP_OK
         );
     }

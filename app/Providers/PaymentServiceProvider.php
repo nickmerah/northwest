@@ -16,7 +16,7 @@ class PaymentServiceProvider extends ServiceProvider
                 'transactionFee' => 500,
                 'accomodation' => 500,
                 'portalFee' => 2000,
-                'callback_url' => "https://portal.bawocons.edu.ng/paystackpaymentresponse",
+                'callback_url' => "https://portal.bawocons.edu.ng/paymentresponse",
                 'cancel_action_url' => "https://portal.bawocons.edu.ng/paystackcancelaction",
             ];
         });

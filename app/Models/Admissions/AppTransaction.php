@@ -55,8 +55,8 @@ class AppTransaction extends Model
                     'feeId' => $fee->fee_id,
                     'feeName' => $fee->fee_name,
                     'amount' => $fee->fee_amount,
-                    'rrr' => $fee->rrr,
-                    'datePaid' => $fee->t_date,
+                    'transactionId' => $fee->trans_no,
+                    'datePaid' => $fee->t_date, 
                 ];
             })->toArray();
         }

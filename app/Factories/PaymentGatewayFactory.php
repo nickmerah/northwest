@@ -5,10 +5,13 @@ namespace App\Factories;
 use Illuminate\Support\Str;
 use App\Services\PayStackGateway;
 use App\Interfaces\PaymentGateway;
+use App\Interfaces\PaymentRepositoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class PaymentGatewayFactory
 {
+    public const PAYSTACK_GATEWAY = PayStackGateway::PAYMENT_METHOD_PAYSTACK;
+
     public function create(string $gateway): PaymentGateway
     {
         return match (strtolower($gateway)) {
@@ -29,5 +32,10 @@ class PaymentGatewayFactory
         }
 
         return $redirectUrl;
+    }
+
+    public static function getallPaidTransactions()
+    {
+        return app(PaymentRepositoryInterface::class)->getAllPaidTransactions();
     }
 }

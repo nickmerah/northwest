@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\Admissions\AppSession;
 use Illuminate\Support\Facades\Cache;
 use App\Interfaces\AccountRepositoryInterface;
+use App\Models\Admissions\AppTransaction;
 use Symfony\Component\HttpFoundation\Response;
 
 class AccountHelper
@@ -62,6 +63,9 @@ class AccountHelper
         $applicant = $this->accountRepository->getApplicantDetails($userId);
 
         $data = $this->getMinimalApplicant($applicant);
+
+        $data['paymentDetails'] = self::getApplicationFees($userId);
+
         Cache::put("applicant:{$userId}", $data, now()->addHour());
 
         return $data;
@@ -82,6 +86,24 @@ class AccountHelper
             'secondchoice' => $applicant->std_course,
             'programmeType' => $applicant->std_programmetype,
             'portalStatus' => $this->accountRepository->isPortalClosed($applicant->stdprogramme_id),
+            'biodata' => $applicant->biodata,
+            'schoolAttended' => $applicant->std_custome5,
+            'olevels' => $applicant->std_custome6,
+            'jambResult' => $applicant->std_custome7,
+            'declaration' => $applicant->std_custome8,
+            'appSubmit' => $applicant->std_custome9,
         ];
+    }
+
+    private static function getApplicationFees(int $userId): array
+    {
+        $feesPaid = AppTransaction::getApplicantPaymentStatus($userId);
+        $applicationFees = array_map(function ($fee) {
+            return [
+                'feeId' => $fee['feeId'],
+            ];
+        }, $feesPaid);
+
+        return $applicationFees;
     }
 }

@@ -8,7 +8,6 @@ use App\Models\Admissions\AppProfile;
 use App\Models\Admissions\AppTransaction;
 use App\Interfaces\ApplicantRepositoryInterface;
 
-
 class ApplicantRepository implements ApplicantRepositoryInterface
 {
 

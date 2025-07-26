@@ -6,6 +6,7 @@ use Exception;
 use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\Payment;
+use App\Http\Requests\CheckPayment;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use App\Factories\PaymentGatewayFactory;
@@ -55,38 +56,94 @@ class PaymentController extends Controller
         }
     }
 
-    public function paystackpaymentresponse(Request $request)
+    public function paymentresponse(Request $request)
     {
-        // Retrieve query parameters
+        // Retrieve query parameters for paystack
         $trxref = $request->input('trxref');
-        $reference = $request->input('reference');
 
-        $response = $gateway->processPayment($request['feeType'], $redirectUrl);
+        $referenceMap = [
+            'paystack' => $trxref,
+            // Add more gateways here if needed
+        ];
 
-        $response = self::payStack_transaction_details($trxref);
+        $gatewayKey = collect($referenceMap)->filter()->keys()->first();
 
-        $status = $response['data']['status'];
-        $reference = $response['data']['reference'];
+        $transactionReference = $referenceMap[$gatewayKey] ?? null;
 
+        $errorMessage = "Unable to process payment, update payment from the portal.";
 
-        if ($status == "success") {
+        abort_if(!$gatewayKey || !$transactionReference, Response::HTTP_BAD_REQUEST, $errorMessage);
 
-            $udata = [
-                'pay_status'  => "Paid"
-            ];
+        $gateway = $this->paymentfactory->create($gatewayKey);
 
-            STransaction::where('trans_no', $trxref)
-                ->update($udata);
+        $transactionDetails = $gateway->retrieveTransactionDetails($transactionReference);
 
-            // Success, redirection
-            return new RedirectResponse('http://localhost/northwest/admissions');
-        } else {
+        if (empty($transactionDetails)) {
+            return new RedirectResponse(url()->previous());
+        }
 
+        $updatetransaction = $gateway->updateTransaction($transactionDetails);
+
+        if ($updatetransaction['paymentStatus'] != 'Paid') {
+            return new RedirectResponse(url()->previous());
+        }
+
+        // Success, redirection
+        return new RedirectResponse($updatetransaction['data']['redirectUrl']);
+    }
+
+    public function paystackcancelaction()
+    {
+        return new RedirectResponse(url()->previous());
+    }
+
+    public function checkpayment(CheckPayment $request)
+    {
+        $gateway = $this->paymentfactory->create($request['gateway']);
+
+        try {
+            $response = $gateway->checkPayment($request['gateway']);
+
+            if (!$response) {
+                return ApiResponse::error(
+                    status: 'error',
+                    message: 'Error checking transactions status.',
+                    statusCode: Response::HTTP_NOT_FOUND
+                );
+            }
+
+            return ApiResponse::success(
+                status: 'success',
+                message: "Checking of transactions status has been completed.",
+                data: $response,
+                statusCode: Response::HTTP_OK
+            );
+        } catch (Exception $e) {
             return ApiResponse::error(
                 status: 'error',
-                message: "Transaction is Pending, Your Payment Reference is $trxref.  Kindly requery your transaction if debited or try again",
-                statusCode: Response::HTTP_UNPROCESSABLE_ENTITY
+                message: $e->getMessage(),
+                statusCode: Response::HTTP_UNAUTHORIZED
             );
         }
+    }
+
+    public function getpaymentHistory()
+    {
+        $response = $this->paymentfactory::getallPaidTransactions();
+
+        if (!$response) {
+            return ApiResponse::error(
+                status: 'error',
+                message: 'Error getting transactions history.',
+                statusCode: Response::HTTP_NOT_FOUND
+            );
+        }
+
+        return ApiResponse::success(
+            status: 'success',
+            message: "Payment history successfully retrieved.",
+            data: $response,
+            statusCode: Response::HTTP_OK
+        );
     }
 }

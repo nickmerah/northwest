@@ -15,7 +15,6 @@ class PayStackGateway extends AbstractPaymentGateway
         parent::__construct($accountRepository, $paymentRepository);
     }
 
-
     //save in database
 
     public function processPayment(int $feeType, string $redirectUrl): array
@@ -36,11 +35,6 @@ class PayStackGateway extends AbstractPaymentGateway
         $paystackDetails = $this->getPayStackPaymentURL($applicant, $feeType, $redirectUrl);
 
         return ['generateStatus' => true, 'paymentDetails' => $paystackDetails];
-    }
-
-    public function checkPayment(string $transactionId): array
-    {
-        return ['transactionId' => $transactionId, 'status' => 'success'];
     }
 
     protected function getPayStackPaymentURL(array $applicant, int $feeType, string $redirectUrl): array
@@ -73,6 +67,9 @@ class PayStackGateway extends AbstractPaymentGateway
             $url = "https://api.paystack.co/transaction/initialize";
             $fields = [
                 'email' => $applicant['email'],
+                'first_name' => $applicant['firstname'],
+                'last_name' => $applicant['surname'],
+                'phone' => $applicant['phoneNumber'],
                 'amount' => $totalamount * 100,
                 'subaccount' => $config['subAccount'],
                 'reference' => $orderId,
@@ -128,8 +125,31 @@ class PayStackGateway extends AbstractPaymentGateway
         return $this->paymentRepository->fetchTransactionDetails($transactionId);
     }
 
-    protected function payStack_transaction_details($trxref)
+    public function updateTransaction(array $transactionDetails): array
     {
+        $data = [];
+
+        $trxref = $transactionDetails['transactionID'];
+        $response = self::payStackTransactionDetails($trxref);
+        $status = $response['data']['status'];
+        $reference = $response['data']['reference'];
+        if ($status != "success") {
+            $data = [
+                'paymentStatus' => $status,
+                'message' => $response['data']['gateway_response'],
+                'data' => ['redirectUrl' => null],
+            ];
+        } else {
+            $data =  $this->paymentRepository->updatePayment($reference);
+        }
+
+        return $data;
+    }
+
+    public static function payStackTransactionDetails($trxref)
+    {
+        $config = app('paystackPayment.config');
+        $sk = $config['ps_SK'];
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -141,7 +161,7 @@ class PayStackGateway extends AbstractPaymentGateway
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_HTTPHEADER => array(
-                "Authorization: Bearer $this->ps_sk",
+                "Authorization: Bearer $sk",
                 "Cache-Control: no-cache",
             ),
         ));
@@ -152,5 +172,29 @@ class PayStackGateway extends AbstractPaymentGateway
         $response = json_decode($result, true);
 
         return $response;
+    }
+
+    public function checkPayment(string $gateway): array
+    {
+        $applicant = $this->getApplicant();
+
+        $allTransactions = $this->paymentRepository->getAllTransactionsByGateway($gateway, $applicant['id']);
+
+        if (empty($allTransactions)) {
+            abort(Response::HTTP_NOT_FOUND, "No pending transactions found.");
+        }
+
+        foreach ($allTransactions as $allTransaction) {
+            $response = self::payStackTransactionDetails($allTransaction['trans_no']);
+            if ($response['status'] == true) {
+                $status = $response['data']['status'];
+                $reference = $response['data']['reference'];
+                if ($status === "success") {
+                    $this->paymentRepository->updatePayment($reference);
+                }
+            }
+        }
+
+        return ['status' => true];
     }
 }

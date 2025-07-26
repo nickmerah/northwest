@@ -4,9 +4,10 @@ namespace App\Repositories;
 
 use App\Models\Admissions\AppFee;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Admissions\AppSession;
 use App\Models\Admissions\AppTransaction;
 use App\Interfaces\PaymentRepositoryInterface;
-use App\Models\Admissions\AppSession;
 
 class PaymentRepository implements PaymentRepositoryInterface
 {
@@ -75,7 +76,7 @@ class PaymentRepository implements PaymentRepositoryInterface
     {
         $data = AppTransaction::where([
             'trans_no' => $transactionId,
-        ])->first(['trans_no', 'trans_custom1']);
+        ])->first(['trans_no', 'trans_custom1', 'paychannel']);
 
         if (!$data) {
             return [];
@@ -84,6 +85,77 @@ class PaymentRepository implements PaymentRepositoryInterface
         return [
             'transactionID' => $data->trans_no,
             'paymentStatus' => $data->trans_custom1,
+            'payChannel' => $data->paychannel,
         ];
+    }
+
+    public function updatePayment(string $transactionId): array
+    {
+        $data = AppTransaction::where([
+            'trans_no' => $transactionId,
+            'trans_custom1' => 'Pending',
+        ])->first(['redirect_url']);
+
+        if (!$data) {
+            return [
+                'paymentStatus' => "Failed",
+                'message' => "Unresolved to process this payment, Kindly update payment from the portal.",
+                'data' => ['redirectUrl' => null],
+
+            ];
+        }
+        $datePaid = date('Y-m-d');
+        $dateTimePaid = date('Y-m-d h:i:s');
+        AppTransaction::where([
+            'trans_no' => $transactionId,
+            'trans_custom1'  => "Pending",
+        ])->update([
+            'trans_custom1'  => "Paid",
+            't_date'  => $datePaid,
+            'trans_date'  => $dateTimePaid,
+        ]);
+
+        return [
+            'paymentStatus' => "Paid",
+            'message' => "Transaction is Successful, Kindly print your receipt . This transaction will be subject to verification by the Bursary Unit",
+            'data' => [
+                'transactionID' => $transactionId,
+                'redirectUrl' => $data->redirect_url,
+            ],
+        ];
+    }
+
+    public function getAllTransactionsByGateway(string $gateway, int $applicantId): array
+    {
+        $data = AppTransaction::where([
+            'paychannel' => $gateway,
+            'log_id' => $applicantId,
+            'trans_custom1' => 'Pending',
+        ])->groupBy('trans_no')->get(['trans_no'])->toArray();
+
+        return $data;
+    }
+
+    public static function getAllPaidTransactions(): array
+    {
+        $records = AppTransaction::where([
+            'log_id' => Auth::user()?->log_id,
+            'trans_custom1' => 'Paid',
+        ])->get(['trans_no', 'trans_custom1', 'fee_amount', 'trans_year', 't_date', 'fee_name']);
+
+        if ($records->isEmpty()) {
+            return [];
+        }
+
+        return $records->map(function ($item) {
+            return [
+                'transactionID' => $item->trans_no,
+                'paymentStatus' => $item->trans_custom1,
+                'amount' => $item->fee_amount,
+                'sessionPaid' => $item->trans_year,
+                'datePaid' => $item->t_date->toFormattedDateString(),
+                'feeName' => $item->fee_name,
+            ];
+        })->toArray();
     }
 }
