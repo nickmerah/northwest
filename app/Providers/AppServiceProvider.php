@@ -15,19 +15,27 @@ use App\Interfaces\PaymentRepositoryInterface;
 use App\Interfaces\ProfileRepositoryInterface;
 use App\Repositories\SchoolSettingsRepository;
 use App\Interfaces\ApplicantRepositoryInterface;
+use App\Interfaces\ResultsRepositoryInterface;
 use App\Interfaces\SchoolSettingsRepositoryInterface;
-
+use App\Repositories\ResultRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
 
     public function register(): void
     {
-        $this->app->bind(SchoolSettingsRepositoryInterface::class, SchoolSettingsRepository::class);
-        $this->app->bind(AccountRepositoryInterface::class, AccountRepository::class);
-        $this->app->bind(ApplicantRepositoryInterface::class, ApplicantRepository::class);
-        $this->app->bind(PaymentRepositoryInterface::class, PaymentRepository::class);
-        $this->app->bind(ProfileRepositoryInterface::class, ProfileRepository::class);
+        $bindings = [
+            SchoolSettingsRepositoryInterface::class => SchoolSettingsRepository::class,
+            AccountRepositoryInterface::class => AccountRepository::class,
+            ApplicantRepositoryInterface::class => ApplicantRepository::class,
+            PaymentRepositoryInterface::class => PaymentRepository::class,
+            ProfileRepositoryInterface::class => ProfileRepository::class,
+            ResultsRepositoryInterface::class => ResultRepository::class,
+        ];
+
+        foreach ($bindings as $interface => $implementation) {
+            $this->app->bind($interface, $implementation);
+        }
     }
 
 

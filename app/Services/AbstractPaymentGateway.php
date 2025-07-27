@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
+use App\Helpers\AccountHelper;
 use App\Interfaces\PaymentGateway;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use App\Interfaces\AccountRepositoryInterface;
 use App\Interfaces\PaymentRepositoryInterface;
@@ -20,14 +20,9 @@ abstract class AbstractPaymentGateway implements PaymentGateway
         $this->paymentRepository = $paymentRepository;
     }
 
-    protected function getUserId(): int
-    {
-        return Auth::user()?->log_id ?? abort(Response::HTTP_BAD_REQUEST, 'Unauthenticated user.');
-    }
-
     protected function getApplicant(): array
     {
-        $userId = $this->getUserId();
+        $userId = AccountHelper::getUserId();
 
         return Cache::get("applicant:{$userId}")
             ?? abort(Response::HTTP_BAD_REQUEST, 'Cached applicant not found.');
@@ -65,6 +60,4 @@ abstract class AbstractPaymentGateway implements PaymentGateway
 
         return $feeDetails;
     }
-
-    
 }

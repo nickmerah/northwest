@@ -63,7 +63,7 @@ class ProfileController extends Controller
 
             return ApiResponse::error(
                 status: 'error',
-                message: 'Unable to saved applicant`s1 profile.',
+                message: 'Unable to saved applicant`s profile.',
                 statusCode: Response::HTTP_UNAUTHORIZED
             );
         } catch (\Exception $e) {

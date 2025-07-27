@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admissions\Api\v1\ResultsController;
 use App\Http\Controllers\Admissions\Api\V1\AccountController;
 use App\Http\Controllers\Admissions\Api\v1\PaymentController;
 use App\Http\Controllers\Admissions\Api\v1\ProfileController;
@@ -37,7 +38,14 @@ Route::prefix('v1')->group(function () {
         Route::post('/verifypayment', [PaymentController::class, 'checkpayment']);
         Route::get('/paymenthistory', [PaymentController::class, 'getpaymentHistory']);
         Route::get('/biodata', [ProfileController::class, 'getProfile']);
-        Route::post('/updatebiodata', [ProfileController::class, 'saveProfile']);
+        Route::post('/biodata', [ProfileController::class, 'saveProfile']);
+        Route::get('/olevels', [ResultsController::class, 'getOlevels']);
+        Route::post('/olevels', [ResultsController::class, 'saveOlevels']);
+        Route::get('/jamb', [ResultsController::class, 'getJamb']);
+        Route::post('/jamb', [ResultsController::class, 'saveJamb']);
+
+        Route::get('/schoolattended', [ResultsController::class, 'getSchoolAttended']);
+        Route::post('/schoolattended', [ResultsController::class, 'saveSchoolAttended']);
 
         // Route::get('/logout', [AccountController::class, 'logout']);
     });

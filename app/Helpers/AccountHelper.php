@@ -6,11 +6,12 @@ use App\Models\Programmes;
 use App\Models\ProgrammeType;
 use Illuminate\Support\Carbon;
 use App\Models\Admissions\AppLogin;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use App\Models\Admissions\AppSession;
 use Illuminate\Support\Facades\Cache;
-use App\Interfaces\AccountRepositoryInterface;
 use App\Models\Admissions\AppTransaction;
+use App\Interfaces\AccountRepositoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class AccountHelper
@@ -105,5 +106,10 @@ class AccountHelper
         }, $feesPaid);
 
         return $applicationFees;
+    }
+
+    public static function getUserId(): int
+    {
+        return Auth::user()?->log_id ?? abort(Response::HTTP_BAD_REQUEST, 'Unauthenticated user.');
     }
 }
