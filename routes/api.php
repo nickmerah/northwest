@@ -43,9 +43,13 @@ Route::prefix('v1')->group(function () {
         Route::post('/olevels', [ResultsController::class, 'saveOlevels']);
         Route::get('/jamb', [ResultsController::class, 'getJamb']);
         Route::post('/jamb', [ResultsController::class, 'saveJamb']);
-
         Route::get('/schoolattended', [ResultsController::class, 'getSchoolAttended']);
         Route::post('/schoolattended', [ResultsController::class, 'saveSchoolAttended']);
+        Route::get('/declaration', [DashBoardController::class, 'declaration']);
+        Route::post('/declaration', [DashBoardController::class, 'savedeclaration']);
+        Route::get('/resultupload', [ResultsController::class, 'getUploadedResults']);
+        Route::post('/resultupload', [ResultsController::class, 'uploadResult']);
+        Route::delete('/removeresult', [ResultsController::class, 'removeResult']);
 
         // Route::get('/logout', [AccountController::class, 'logout']);
     });

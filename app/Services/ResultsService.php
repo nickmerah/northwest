@@ -2,13 +2,16 @@
 
 namespace App\Services;
 
-use App\Helpers\AccountHelper;
-use App\Http\Requests\Olevel;
-use Illuminate\Support\Facades\Cache;
-use Symfony\Component\HttpFoundation\Response;
-use App\Interfaces\ResultsRepositoryInterface;
 use App\Http\Requests\Jamb;
+use App\Http\Requests\Olevel;
+use App\Helpers\AccountHelper;
+use App\Http\Requests\Certificate;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\SchoolAttended;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+use App\Interfaces\ResultsRepositoryInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 class ResultsService
 {
@@ -74,5 +77,103 @@ class ResultsService
         }
 
         return $this->resultsRepository->saveSchoolAttended($applicantId, $request);
+    }
+
+    public function getUploadedResults()
+    {
+        return $this->resultsRepository->getUploadedResults(AccountHelper::getUserId());
+    }
+
+    public function saveUploadedResult(Certificate $request)
+    {
+        $applicantId = AccountHelper::getUserId();
+        $applicant = Cache::get("applicant:{$applicantId}")
+            ?? abort(Response::HTTP_BAD_REQUEST, 'Cached applicant not found.');
+
+        // Fee check
+        if ($applicant['olevels'] === 0) {
+            abort(Response::HTTP_BAD_REQUEST, 'You can only upload results after paying the requisite fee');
+        }
+
+        $documents = [
+            'jamb_result' => 'Jamb Result',
+            'o_level_result' => 'O Level Result',
+            'birth_certificate' => 'Birth Certificate',
+        ];
+
+        $errors = [];
+        $savedDocs = [];
+        $certificatesToSave = [];
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($documents as $field => $documentName) {
+                if ($request->hasFile($field)) {
+                    $file = $request->file($field);
+
+                    // Validate
+                    if (
+                        strtolower($file->getClientOriginalExtension()) !== 'pdf' ||
+                        $file->getMimeType() !== 'application/pdf'
+                    ) {
+                        $errors[] = "$documentName: Only PDF files are allowed.";
+                        continue;
+                    }
+
+                    if ($file->getSize() > 102400) {
+                        $errors[] = "$documentName: File exceeds 100KB size limit.";
+                        continue;
+                    }
+
+                    // Store
+                    $timestamp = now()->format('dmYHis');
+                    $fileName = "{$timestamp}_" . strtolower(str_replace(' ', '_', $documentName)) . '.pdf';
+                    $file->storeAs('documents', $fileName);
+
+                    // Prepare for DB
+                    $certificatesToSave[] = [
+                        'stdid' => $applicantId,
+                        'docname' => $documentName,
+                        'uploadname' => $fileName,
+                    ];
+
+                    $savedDocs[] = [
+                        'documentName' => $documentName,
+                        'uploadName' => $fileName,
+                    ];
+                }
+            }
+
+            if (!empty($errors)) {
+                DB::rollBack();
+                abort(Response::HTTP_UNPROCESSABLE_ENTITY, $errors);
+            }
+
+            $savedResults = $this->resultsRepository->saveCertificates($certificatesToSave, $applicantId);
+
+            DB::commit();
+            return  $savedResults;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            abort(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getMessage());
+        }
+    }
+
+    public function removeResult()
+    {
+        $applicantId = AccountHelper::getUserId();
+
+        $documents = $this->resultsRepository->getUploadedResults($applicantId);
+
+        foreach ($documents as $doc) {
+            $filePath = 'documents/' . $doc['uploadName'];
+
+            if (Storage::exists($filePath)) {
+                Storage::delete($filePath);
+            }
+        }
+
+        return $this->resultsRepository->deleteDocumentRecords($applicantId);
     }
 }

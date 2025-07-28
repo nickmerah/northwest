@@ -5,8 +5,10 @@ namespace App\Repositories;
 use Illuminate\Http\Request;
 use App\Models\Admissions\Jamb;
 use App\Models\Admissions\OLevel;
-use App\Interfaces\ResultsRepositoryInterface;
+use App\Models\Admissions\AppProfile;
+use App\Models\Admissions\Certificates;
 use App\Models\Admissions\SchoolAttended;
+use App\Interfaces\ResultsRepositoryInterface;
 
 class ResultRepository implements ResultsRepositoryInterface
 {
@@ -65,6 +67,8 @@ class ResultRepository implements ResultsRepositoryInterface
             }
         }
 
+        $this->updateAppProfile($applicantId, 'std_custome6');
+
         return self::getOlevelDetails($applicantId);
     }
 
@@ -111,6 +115,8 @@ class ResultRepository implements ResultsRepositoryInterface
             );
         }
 
+        $this->updateAppProfile($applicantId, 'std_custome7');
+
         return self::getJambDetails($applicantId);
     }
 
@@ -153,6 +159,50 @@ class ResultRepository implements ResultsRepositoryInterface
             ]
         );
 
+        $this->updateAppProfile($applicantId, 'std_custome5');
+
         return self::getSchoolAttended($applicantId);
+    }
+
+    protected function updateAppProfile(string $applicantId, string $column): void
+    {
+        $appProfile = AppProfile::where('std_logid', $applicantId)->first();
+
+        if ($appProfile && in_array($column, ['std_custome5', 'std_custome6', 'std_custome7'])) {
+            $appProfile->update([$column => 1]);
+        }
+    }
+
+    public function getUploadedResults(int $applicantId): array
+    {
+        $uploadedResults = Certificates::where('stdid', $applicantId)->get()->toArray();
+
+        if (empty($uploadedResults)) {
+
+            return [];
+        }
+
+        $results = array_map(function ($result) {
+            return [
+                'documentName' => $result['docname'],
+                'uploadName' => $result['uploadname'],
+            ];
+        }, $uploadedResults);
+
+        return $results;
+    }
+
+    public function saveCertificates(array $certificates, int $applicantId): array
+    {
+        foreach ($certificates as $data) {
+            Certificates::create($data);
+        }
+
+        return self::getUploadedResults($applicantId);
+    }
+
+    public function deleteDocumentRecords(int $applicantId): bool
+    {
+        return Certificates::where('stdid', $applicantId)->delete() > 0;
     }
 }

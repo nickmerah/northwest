@@ -45,4 +45,62 @@ class DashBoardController extends Controller
             );
         }
     }
+
+    public function declaration()
+    {
+        $response = $this->applicantService->getDeclaration();
+
+        try {
+
+            if ($response) {
+                return ApiResponse::success(
+                    status: 'success',
+                    message: 'Declaration successful retrieved.',
+                    data: $response,
+                    statusCode: Response::HTTP_OK
+                );
+            }
+
+            return ApiResponse::error(
+                status: 'error',
+                message: 'Error retrieving Declaration.',
+                statusCode: Response::HTTP_UNAUTHORIZED
+            );
+        } catch (\Exception $e) {
+            return ApiResponse::error(
+                status: 'error',
+                message: $e->getMessage(),
+                statusCode: Response::HTTP_UNAUTHORIZED
+            );
+        }
+    }
+
+    public function savedeclaration()
+    {
+        $response = $this->applicantService->saveDeclaration();
+
+        try {
+
+            if ($response) {
+                return ApiResponse::success(
+                    status: 'success',
+                    message: 'Declaration saved successful.',
+                    data: $response,
+                    statusCode: Response::HTTP_OK
+                );
+            }
+
+            return ApiResponse::error(
+                status: 'error',
+                message: 'Error saving Declaration.',
+                statusCode: Response::HTTP_UNAUTHORIZED
+            );
+        } catch (\Exception $e) {
+            return ApiResponse::error(
+                status: 'error',
+                message: $e->getMessage(),
+                statusCode: Response::HTTP_UNAUTHORIZED
+            );
+        }
+    }
 }

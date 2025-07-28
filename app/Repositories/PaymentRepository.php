@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Admissions\AppFee;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Admissions\AppProfile;
 use App\Models\Admissions\AppSession;
 use App\Models\Admissions\AppTransaction;
 use App\Interfaces\PaymentRepositoryInterface;
@@ -31,12 +32,29 @@ class PaymentRepository implements PaymentRepositoryInterface
     public function getApplicantFee(array $applicant, int $feeId): array
     {
         $applicantFees = AppFee::getApplicantFees($applicant);
+        $isIndigene = AppProfile::isIndigene($applicant['id']);
+
+        // Filter by feeId
         $feesToPay = array_filter($applicantFees, function ($fee) use ($feeId) {
             return $fee['feeId'] == $feeId;
         });
 
-        return $feesToPay[0] ?? [];
+        $feesToPay = array_values($feesToPay);
+
+        if (empty($feesToPay)) {
+            return [];
+        }
+
+        // Handle Acceptance Fee (feeId == 2) with Deltan/General logic
+        if ($feeId === 2) {
+            $selectedFee = collect($feesToPay)->firstWhere('statusStatus', $isIndigene ? 'Deltan' : 'General')
+                ?? $feesToPay[0];
+            return $selectedFee;
+        }
+
+        return $feesToPay[0];
     }
+
 
     public function logTransaction(string $paymentResponse, string $responseType): void
     {

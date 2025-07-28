@@ -42,6 +42,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         AppProfile::observe(AppProfileObserver::class);
-        View::share('SCHOOLNAME', 'NorthWest School of Nursing, Katsina');
+        View::share('SCHOOLNAME', config('school.name'));
     }
 }

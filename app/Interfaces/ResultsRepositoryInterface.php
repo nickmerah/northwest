@@ -17,4 +17,10 @@ interface ResultsRepositoryInterface
     public function getSchoolAttended(int $applicantId): array;
 
     public function saveSchoolAttended(int $applicantId, Request $request): array;
+
+    public function getUploadedResults(int $applicantId): array;
+
+    public function saveCertificates(array $certificates, int $applicantId): array;
+
+    public function deleteDocumentRecords(int $applicantId): bool;
 }

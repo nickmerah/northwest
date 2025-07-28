@@ -59,7 +59,8 @@ class AppProfile extends Model
         'std_custome7',
         'std_custome8',
         'std_custome9',
-        'ndcert'
+        'ndcert',
+        'appsubmitdate'
     ];
 
     protected static function boot()
@@ -188,5 +189,12 @@ class AppProfile extends Model
         }
 
         return [];
+    }
+
+    public static function isIndigene(int $applicantId): bool
+    {
+        return self::where('std_logid', $applicantId)
+            ->where('state_of_origin', 10) // Deltan
+            ->exists();
     }
 }

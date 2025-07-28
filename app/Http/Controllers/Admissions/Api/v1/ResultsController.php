@@ -6,6 +6,7 @@ use App\Http\Requests\Jamb;
 use App\Helpers\ApiResponse;
 use App\Http\Requests\Olevel;
 use App\Services\ResultsService;
+use App\Http\Requests\Certificate;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SchoolAttended;
 use Symfony\Component\HttpFoundation\Response;
@@ -178,6 +179,90 @@ class ResultsController extends Controller
             return ApiResponse::error(
                 status: 'error',
                 message: 'Unable to saved applicant`s School Attended Details.',
+                statusCode: Response::HTTP_UNAUTHORIZED
+            );
+        } catch (\Exception $e) {
+            return ApiResponse::error(
+                status: 'error',
+                message: $e->getMessage(),
+                statusCode: Response::HTTP_UNAUTHORIZED
+            );
+        }
+    }
+
+    public function getUploadedResults(): JsonResponse
+    {
+        try {
+            $response = $this->resultsService->getUploadedResults();
+
+            if ($response) {
+                return ApiResponse::success(
+                    status: 'success',
+                    message: 'Uploaded Results retrieved successfully',
+                    data: $response,
+                    statusCode: Response::HTTP_OK
+                );
+            }
+
+            return ApiResponse::error(
+                status: 'error',
+                message: 'Unable to retrieve applicant`s Uploaded Results.',
+                statusCode: Response::HTTP_UNAUTHORIZED
+            );
+        } catch (\Exception $e) {
+            return ApiResponse::error(
+                status: 'error',
+                message: $e->getMessage(),
+                statusCode: Response::HTTP_UNAUTHORIZED
+            );
+        }
+    }
+
+    public function uploadResult(Certificate $request): JsonResponse
+    {
+        try {
+            $response = $this->resultsService->saveUploadedResult($request);
+
+            if ($response) {
+                return ApiResponse::success(
+                    status: 'success',
+                    message: 'Results uploaded successfully',
+                    data: $response,
+                    statusCode: Response::HTTP_OK
+                );
+            }
+
+            return ApiResponse::error(
+                status: 'error',
+                message: 'Unable to upload applicant`s Results.',
+                statusCode: Response::HTTP_UNAUTHORIZED
+            );
+        } catch (\Exception $e) {
+            return ApiResponse::error(
+                status: 'error',
+                message: $e->getMessage(),
+                statusCode: Response::HTTP_UNAUTHORIZED
+            );
+        }
+    }
+
+    public function removeResult(): JsonResponse
+    {
+        try {
+            $response = $this->resultsService->removeResult();
+
+            if ($response) {
+                return ApiResponse::success(
+                    status: 'success',
+                    message: 'Results removed successfully',
+                    data: $response,
+                    statusCode: Response::HTTP_OK
+                );
+            }
+
+            return ApiResponse::error(
+                status: 'error',
+                message: 'Unable to remove applicant`s Results.',
                 statusCode: Response::HTTP_UNAUTHORIZED
             );
         } catch (\Exception $e) {

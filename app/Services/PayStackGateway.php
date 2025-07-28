@@ -39,16 +39,27 @@ class PayStackGateway extends AbstractPaymentGateway
 
     protected function getPayStackPaymentURL(array $applicant, int $feeType, string $redirectUrl): array
     {
-
         $timesammp = DATE("dmyHis");
         $orderId = $applicant['id'] . $timesammp;
         $config = app('paystackPayment.config');
         $totalamount = 0;
 
         $feesToPay = $this->getApplicantFeeDetails($applicant, $feeType);
+
+
         $totalamount = $feesToPay['amount'] + $config['transactionFee'];
-        $schoolshare = $feesToPay['amount'] - $config['portalFee'];
+        $schoolshare = $feesToPay['amount'];
+
+        // we only charge portal fees for application form fee 
+        if ($feeType == 1) {
+            $schoolshare = $feesToPay['amount'] - $config['portalFee'];
+        }
+
         $paystackResponse = $this->makePayStackApiCall($applicant, $totalamount, $schoolshare, $orderId, $config);
+
+        if ($paystackResponse['status'] != 1) {
+            abort(Response::HTTP_BAD_REQUEST, $paystackResponse['message']);
+        }
 
         //log response on db
         $this->paymentRepository->logTransaction(stripslashes(json_encode($paystackResponse)), "Response");
@@ -96,14 +107,16 @@ class PayStackGateway extends AbstractPaymentGateway
             ]);
 
             $result = curl_exec($ch);
-
+            $response = json_decode($result, true);
             if (curl_errno($ch)) {
                 abort(Response::HTTP_BAD_REQUEST, 'Paystack API error: ' . curl_error($ch));
             }
 
             curl_close($ch);
 
-            $data = json_decode($result, true);
+            abort_if(!$response['status'], Response::HTTP_BAD_REQUEST, $response['message']);
+
+            $data =  $response;
         } catch (\Exception $e) {
             $data = [
                 'status' => 0,

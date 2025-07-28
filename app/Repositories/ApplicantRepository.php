@@ -29,4 +29,23 @@ class ApplicantRepository implements ApplicantRepositoryInterface
 
         ];
     }
+
+    public function saveDeclaration(): ?array
+    {
+        $updateData = [
+            'std_custome8' => 1,
+            'std_custome9' => 1,
+            'appsubmitdate' => date('Y-m-d'),
+        ];
+
+        $appProfile = AppProfile::where('std_logid', Auth::user()->log_id)->first();
+
+        if ($appProfile) {
+            $appProfile->update($updateData);
+        }
+
+        return [
+            'success' => true
+        ];
+    }
 }
