@@ -25,10 +25,24 @@
              </div>
              <div class="card-body">
                  <p class="text-muted">We will send a link to reset your password</p>
-                 <form id="app_login" name="app_login" action="https://portal.mydspg.edu.ng/admissions/account/forgetpass" method="post">
+
+                 @if (isset($message) && $registered ?? false)
+                 <div class="alert alert-success">
+                     {{ $message }}
+                     @if ($applicationNo)
+                     <p>Your New Password is: <strong>{{ $newPassword }}</strong></p>
+                     @endif
+                 </div>
+                 @endif
+                 @if (session('error'))
+                 <div class="alert alert-danger">{{ session('error') }}</div>
+                 @endif
+
+                 <form id="app_login" name="app_login" action="{{ route('admissions.fpass') }}" method="post">
+                     @csrf
                      <div class="form-group">
                          <label for="email">Application Number</label>
-                         <input id="email" type="text" class="form-control" name="regno" tabindex="1" required autofocus autocomplete="off">
+                         <input id="email" type="text" class="form-control" name="regno" tabindex="1" required autofocus autocomplete="off" value="{{ old('regno') }}">
                      </div>
                      <div class="form-group">
                          <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">

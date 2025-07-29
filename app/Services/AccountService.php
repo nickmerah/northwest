@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use Exception;
 use App\Helpers\AccountHelper;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\AppLoginResource;
@@ -60,7 +59,7 @@ class AccountService
 
     public function accountLogin($request)
     {
-        $credentials = $request->only('username', 'password');
+        $credentials = $request->only('applicationNo', 'password');
 
         $response = $this->accountRepository->loginAccount($credentials);
 
@@ -82,9 +81,9 @@ class AccountService
 
     public function resetPassword($request)
     {
-        $username = $request->only('username');
+        $applicationNo = $request->only('applicationNo');
 
-        return $this->accountRepository->resetPassword($username);
+        return $this->accountRepository->resetPassword($applicationNo);
     }
 
     public function accountLogout()

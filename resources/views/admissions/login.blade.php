@@ -24,6 +24,9 @@
                  <h4>Login</h4>
 
              </div>
+             @if (session('error'))
+             <div class="alert alert-danger">{{ session('error') }}</div>
+             @endif
              <div class="card-body">
 
 
@@ -34,14 +37,15 @@
 
                  </div>
 
-                 <form method="POST" action="https://portal.mydspg.edu.ng/admissions/account/login" class="needs-validation" novalidate="" autocomplete="off">
-                     <input type="hidden" name="csrf_test_name" value="d91c5e8b056466aa7b38d732fdb123c0">
+                 <form method="POST" action="{{ route('admissions.login') }}" class="needs-validation" autocomplete="off">
+                     @csrf
                      <div class="form-group">
-                         <label for="email"> Application Number</label>
-                         <input id="email" type="text" class="form-control" name="email" tabindex="1" required autofocus maxlength="15" minlength="4">
-                         <div class="invalid-feedback">
-                             Please fill in your current Application No
-                         </div>
+                         <label for="regno"> Application Number</label>
+                         <input id="regno" type="text" class="form-control @error('regno') is-invalid @enderror" name="regno" tabindex="1" required autofocus maxlength="15" minlength="4">
+
+                         @error('regno')
+                         <div class="text-danger big">{{ $message }}</div>
+                         @enderror
                      </div>
                      <div class="form-group">
                          <div class="d-block">
@@ -57,8 +61,11 @@
                      </div>
 
                      <div class="form-group">
-                         <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">
-                             Login
+                         <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4" id="login-btn">
+                             <span id="login-text">Login</span>
+                             <span id="loading-spinner" class="d-none">
+                                 <i class="fas fa-spinner fa-spin"></i> Loading...
+                             </span>
                          </button>
                      </div>
                      <div class="mt-1 text-muted text-center">
@@ -70,7 +77,20 @@
                          </div>
                      </div>
                  </form>
+                 <script>
+                     document.addEventListener('DOMContentLoaded', function() {
+                         const form = document.querySelector('form');
+                         const loginBtn = document.getElementById('login-btn');
+                         const loginText = document.getElementById('login-text');
+                         const loadingSpinner = document.getElementById('loading-spinner');
 
+                         form.addEventListener('submit', function() {
+                             loginBtn.disabled = true;
+                             loginText.classList.add('d-none');
+                             loadingSpinner.classList.remove('d-none');
+                         });
+                     });
+                 </script>
 
              </div>
          </div>

@@ -22,7 +22,7 @@ class AccountResetPassword extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => 'required|string|min:3|max:255',
+            'applicationNo' => 'required|string|min:3|max:255',
         ];
     }
 }

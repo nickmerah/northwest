@@ -88,7 +88,7 @@ class AccountRepository implements AccountRepositoryInterface
     public function loginAccount(array $data): ?array
     {
         if (!Auth::attempt([
-            'log_username' => $data['username'],
+            'log_username' => $data['applicationNo'],
             'password' => $data['password'],
         ])) {
             return [
@@ -105,23 +105,23 @@ class AccountRepository implements AccountRepositoryInterface
 
     public function resetPassword(array $data): ?array
     {
-        $username = $data['username'];
+        $applicationNo = $data['applicationNo'];
 
-        if (!self::usernameAlreadyExists($username)) {
+        if (!self::usernameAlreadyExists($applicationNo)) {
             return [
                 'success' => false,
                 'message' => 'Invalid credentials',
             ];
         }
 
-        $user = AppLogin::where('log_username', $username)->first();
+        $user = AppLogin::where('log_username', $applicationNo)->first();
         $genPass = rand(00000, 999999);
         $user->log_password = $genPass;
         $user->save();
 
         return [
             'success' => true,
-            'user' => $username,
+            'user' => $applicationNo,
             'passkey' => $genPass,
         ];
     }

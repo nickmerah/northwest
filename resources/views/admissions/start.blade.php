@@ -21,24 +21,36 @@
               <div class="col-12 col-sm-12 col-lg-12">
 
                   <div class="card card-primary">
+                      <div>
+                          {{-- Show success or error messages --}}
+                          @if (session('success'))
+                          <div class="alert alert-success">{{ session('success') }}</div>
+                          @endif
+
+                          @if (session('error'))
+                          <div class="alert alert-danger">{{ session('error') }}</div>
+                          @endif
+                      </div>
                       <div class="card-header">
                           <h4>Create Account
 
                           </h4>
 
                       </div>
+
                       <form id="add_create" name="add_create" action="{{ route('admissions.store') }}" method="post">
                           @csrf
                           <div class="card-body">
-                              <input name="isjamb" type="hidden" value="no">
-
                               <div class="form-group">
                                   <div class="input-group mb-2">
                                       <div class="input-group-prepend">
                                           <div class="input-group-text"><i class="fas fa-user"></i></div>
                                       </div>
-                                      <input name="surname" minlength="3" maxlength="255" class="form-control" placeholder="Surname" required autocomplete="off" value="">
+                                      <input name="surname" class="form-control @error('surname') is-invalid @enderror" placeholder="Surname" required autocomplete="off" value="{{ old('surname') }}">
                                   </div>
+                                  @error('surname')
+                                  <div class="text-danger small">{{ $message }}</div>
+                                  @enderror
                               </div>
 
                               <div class="form-group">
@@ -46,8 +58,11 @@
                                       <div class="input-group-prepend">
                                           <div class="input-group-text"><i class="fas fa-user-plus"></i></div>
                                       </div>
-                                      <input name="firstname" type="text" minlength="3" maxlength="255" class="form-control" placeholder="Firstname" required autocomplete="off" value="">
+                                      <input name="firstname" type="text" class="form-control @error('firstname') is-invalid @enderror" placeholder="Firstname" required autocomplete="off" value="{{ old('firstname') }}">
                                   </div>
+                                  @error('firstname')
+                                  <div class="text-danger small">{{ $message }}</div>
+                                  @enderror
                               </div>
 
                               <div class="form-group">
@@ -55,8 +70,11 @@
                                       <div class="input-group-prepend">
                                           <div class="input-group-text"><i class="fas fa-user-alt"></i></div>
                                       </div>
-                                      <input name="othernames" type="text" maxlength="255" class="form-control" placeholder="Othernames" autocomplete="off" value="">
+                                      <input name="othernames" type="text" class="form-control @error('othernames') is-invalid @enderror" placeholder="Othernames" autocomplete="off" value="{{ old('othernames') }}">
                                   </div>
+                                  @error('othernames')
+                                  <div class="text-danger small">{{ $message }}</div>
+                                  @enderror
                               </div>
 
                               <div class="form-group">
@@ -64,7 +82,7 @@
                                       <div class="input-group-prepend">
                                           <div class="input-group-text"><i class="fas fa-school"></i></div>
                                       </div>
-                                      <select name="progtype" id="sprogtype" class="form-control" required>
+                                      <select name="progtype" id="sprogtype" class="form-control @error('progtype') is-invalid @enderror" required>
 
                                       </select>
 
@@ -97,7 +115,9 @@
                                           });
                                       </script>
 
-                                  </div>
+                                  </div> @error('progtype')
+                                  <div class="text-danger small">{{ $message }}</div>
+                                  @enderror
                               </div>
 
                               <div class="form-group">
@@ -105,7 +125,7 @@
                                       <div class="input-group-prepend">
                                           <span class="input-group-text"><i class="fas fa-university"></i></span>
                                       </div>
-                                      <select name="prog" id="sel_prog" class="form-control" required>
+                                      <select name="prog" id="sel_prog" class="form-control @error('prog') is-invalid @enderror" required>
                                       </select>
 
                                       <script>
@@ -136,6 +156,9 @@
                                           });
                                       </script>
                                   </div>
+                                  @error('prog')
+                                  <div class="text-danger small">{{ $message }}</div>
+                                  @enderror
                               </div>
 
                               <div class="form-group">
@@ -143,10 +166,13 @@
                                       <div class="input-group-prepend">
                                           <div class="input-group-text"><i class="fas fa-school"></i></div>
                                       </div>
-                                      <select name="cos_id" id="sel_cos" class="form-control" required>
+                                      <select name="cos_id" id="sel_cos" class="form-control @error('cos_id') is-invalid @enderror" required>
                                           <option value="">Select Course of Study - First Choice</option>
                                       </select>
                                   </div>
+                                  @error('cos_id')
+                                  <div class="text-danger small">{{ $message }}</div>
+                                  @enderror
                               </div>
 
                               <div class="form-group">
@@ -154,10 +180,13 @@
                                       <div class="input-group-prepend">
                                           <div class="input-group-text"><i class="fas fa-school"></i></div>
                                       </div>
-                                      <select name="cos_id_two" id="sel_cos_two" class="form-control" required>
+                                      <select name="cos_id_two" id="sel_cos_two" class="form-control @error('cos_id_two') is-invalid @enderror" required>
                                           <option value="">Select Course of Study - Second Choice</option>
                                       </select>
                                   </div>
+                                  @error('cos_id_two')
+                                  <div class="text-danger small">{{ $message }}</div>
+                                  @enderror
                               </div>
 
                               <script>
@@ -221,8 +250,11 @@
                                       <div class="input-group-prepend">
                                           <div class="input-group-text"><i class="fas fa-lock"></i></div>
                                       </div>
-                                      <input name="password" type="password" minlength="4" maxlength="50" class="form-control pwstrength" placeholder="Password" required data-indicator="pwindicator" value="">
+                                      <input name="password" type="password" class="form-control @error('password') is-invalid @enderror" placeholder="Password" required data-indicator="pwindicator">
                                   </div>
+                                  @error('password')
+                                  <div class="text-danger small">{{ $message }}</div>
+                                  @enderror
                               </div>
 
                               <div class="form-group">
@@ -230,8 +262,11 @@
                                       <div class="input-group-prepend">
                                           <div class="input-group-text"><i class="fas fa-at"></i></div>
                                       </div>
-                                      <input name="email" type="email" class="form-control" maxlength="150" placeholder="Email Address" required autocomplete="off" value="">
+                                      <input name="email" type="email" class="form-control @error('email') is-invalid @enderror" placeholder="Email Address" required autocomplete="off" value="{{ old('email') }}">
                                   </div>
+                                  @error('email')
+                                  <div class="text-danger small">{{ $message }}</div>
+                                  @enderror
                               </div>
 
                               <div class="form-group">
@@ -239,8 +274,11 @@
                                       <div class="input-group-prepend">
                                           <div class="input-group-text"><i class="fas fa-phone"></i></div>
                                       </div>
-                                      <input name="phoneno" type="number" class="form-control" placeholder="Phone Number" required autocomplete="off" value="">
+                                      <input name="phoneno" type="number" class="form-control @error('phoneno') is-invalid @enderror" placeholder="Phone Number" required autocomplete="off" value="{{ old('phoneno') }}">
                                   </div>
+                                  @error('phoneno')
+                                  <div class="text-danger small">{{ $message }}</div>
+                                  @enderror
                               </div>
 
                               <div class="form-group">
@@ -248,10 +286,12 @@
                                       <div class="input-group-prepend">
                                           <div class="input-group-text"><i class="fas fa-user-lock"></i></div>
                                       </div>
-                                      <input type="number" class="form-control" name="captchaResult"
-                                          placeholder="Solve the Math: {{ $random_number1 }} + {{ $random_number2 }} ="
-                                          required autocomplete="off">
+                                      <input type="number" class="form-control @error('captchaResult') is-invalid @enderror" name="captchaResult"
+                                          placeholder="Solve the Math: {{ $random_number1 }} + {{ $random_number2 }} =" required autocomplete="off">
                                   </div>
+                                  @error('captchaResult')
+                                  <div class="text-danger small">{{ $message }}</div>
+                                  @enderror
                                   <input type="hidden" name="first_number" value="{{ $random_number1 }}">
                                   <input type="hidden" name="second_number" value="{{ $random_number2 }}">
                               </div>

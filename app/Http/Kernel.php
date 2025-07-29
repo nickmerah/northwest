@@ -71,5 +71,6 @@ class Kernel extends HttpKernel
         'checkUserSession' => \App\Http\Middleware\CheckUserSession::class,
         'checkLoginUserSession' => \App\Http\Middleware\CheckLoginUserSession::class,
         'checkRemedialUserSession' => \App\Http\Middleware\CheckRemedialUserSession::class,
+        'checkApplicantSession' => \App\Http\Middleware\EnsureApplicantIsLoggedIn::class,
     ];
 }

@@ -22,7 +22,7 @@ class AccountLogin extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => 'required|string|min:3|max:255',
+            'applicationNo' => 'required|string|min:3|max:255',
             'password' => 'required|alpha_num|min:4|max:255',
         ];
     }
