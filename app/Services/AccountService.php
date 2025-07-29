@@ -4,9 +4,12 @@ namespace App\Services;
 
 use Exception;
 use App\Helpers\AccountHelper;
+use Illuminate\Support\Facades\DB;
 use App\Http\Resources\AppLoginResource;
+use Laravel\Passport\RefreshTokenRepository;
 use App\Interfaces\AccountRepositoryInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 
 
@@ -61,8 +64,9 @@ class AccountService
 
         $response = $this->accountRepository->loginAccount($credentials);
 
-        if (!isset($response['success'])) {
-            abort(Response::HTTP_BAD_REQUEST, $response['message']);
+        if (!$response['success']) {
+            //  abort(Response::HTTP_BAD_REQUEST, $response['message']);
+            throw new HttpException(Response::HTTP_BAD_REQUEST, $response['message'] ?? 'Bad request');
         }
 
         $userId = $response['user']['log_id'];
@@ -81,5 +85,28 @@ class AccountService
         $username = $request->only('username');
 
         return $this->accountRepository->resetPassword($username);
+    }
+
+    public function accountLogout()
+    {
+        $user = auth()->user();
+        if ($user) {
+            $accessToken = $user->token();
+
+            // Revoke and delete the access token
+            $accessToken->revoke();
+            $accessToken->delete();
+
+            // Revoke and delete the refresh token(s)
+            app(RefreshTokenRepository::class)->revokeRefreshTokensByAccessTokenId($accessToken->id);
+            DB::table('oauth_refresh_tokens')->where('access_token_id', $accessToken->id)->delete();
+
+            $this->accountHelper->clearCachedApplicantData($user->log_id);
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Successfully logged out.',
+        ];
     }
 }

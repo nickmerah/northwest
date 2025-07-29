@@ -2,105 +2,46 @@
 
 namespace App\Http\Controllers\Admissions\Api\v1;
 
-use App\Helpers\ApiResponse;
+use Illuminate\Http\Request;
 use App\Services\ApplicantService;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use App\Services\ApiResponseService;
 
 class DashBoardController extends Controller
 {
     protected $applicantService;
+    protected $apiResponse;
 
-    public function __construct(ApplicantService $applicantService)
+    public function __construct(ApplicantService $applicantService, ApiResponseService $apiResponse)
     {
         $this->applicantService = $applicantService;
+        $this->apiResponse = $apiResponse;
     }
 
     public function index(Request $request)
     {
-        $response = $this->applicantService->getDashBoardData($request);
-
-        try {
-
-            if ($response && $response['success']) {
-                return ApiResponse::success(
-                    status: 'success',
-                    message: 'Dashboard Data successful retrieved.',
-                    data: $response,
-                    statusCode: Response::HTTP_OK
-                );
-            }
-
-            return ApiResponse::error(
-                status: 'error',
-                message: 'Error retrieving Dashboard Data.',
-                statusCode: Response::HTTP_UNAUTHORIZED
-            );
-        } catch (\Exception $e) {
-            return ApiResponse::error(
-                status: 'error',
-                message: $e->getMessage(),
-                statusCode: Response::HTTP_UNAUTHORIZED
-            );
-        }
+        return $this->apiResponse->respond(
+            fn() => $this->applicantService->getDashBoardData($request),
+            'Dashboard Data successfully retrieved.',
+            'Error retrieving Dashboard Data.'
+        );
     }
 
     public function declaration()
     {
-        $response = $this->applicantService->getDeclaration();
-
-        try {
-
-            if ($response) {
-                return ApiResponse::success(
-                    status: 'success',
-                    message: 'Declaration successful retrieved.',
-                    data: $response,
-                    statusCode: Response::HTTP_OK
-                );
-            }
-
-            return ApiResponse::error(
-                status: 'error',
-                message: 'Error retrieving Declaration.',
-                statusCode: Response::HTTP_UNAUTHORIZED
-            );
-        } catch (\Exception $e) {
-            return ApiResponse::error(
-                status: 'error',
-                message: $e->getMessage(),
-                statusCode: Response::HTTP_UNAUTHORIZED
-            );
-        }
+        return $this->apiResponse->respond(
+            fn() => $this->applicantService->getDeclaration(),
+            'Declaration successfully retrieved.',
+            'Error retrieving Declaration.'
+        );
     }
 
-    public function savedeclaration()
+    public function saveDeclaration()
     {
-        $response = $this->applicantService->saveDeclaration();
-
-        try {
-
-            if ($response) {
-                return ApiResponse::success(
-                    status: 'success',
-                    message: 'Declaration saved successful.',
-                    data: $response,
-                    statusCode: Response::HTTP_OK
-                );
-            }
-
-            return ApiResponse::error(
-                status: 'error',
-                message: 'Error saving Declaration.',
-                statusCode: Response::HTTP_UNAUTHORIZED
-            );
-        } catch (\Exception $e) {
-            return ApiResponse::error(
-                status: 'error',
-                message: $e->getMessage(),
-                statusCode: Response::HTTP_UNAUTHORIZED
-            );
-        }
+        return $this->apiResponse->respond(
+            fn() => $this->applicantService->saveDeclaration(),
+            'Declaration saved successfully.',
+            'Error saving Declaration.'
+        );
     }
 }

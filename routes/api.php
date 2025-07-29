@@ -50,8 +50,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/resultupload', [ResultsController::class, 'getUploadedResults']);
         Route::post('/resultupload', [ResultsController::class, 'uploadResult']);
         Route::delete('/removeresult', [ResultsController::class, 'removeResult']);
-
-        // Route::get('/logout', [AccountController::class, 'logout']);
+        Route::get('/logout', [AccountController::class, 'logout']);
     });
 
     Route::get('/paymentresponse', [PaymentController::class, 'paymentresponse'])->name('paymentresponse');

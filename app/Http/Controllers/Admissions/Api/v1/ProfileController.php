@@ -3,75 +3,44 @@
 namespace App\Http\Controllers\Admissions\Api\v1;
 
 use App\Helpers\ApiResponse;
+use App\Http\Requests\Profile;
 use App\Services\BiodataService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Profile;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Services\ApiResponseService;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ProfileController extends Controller
 {
 
     protected $biodataService;
+    protected $apiResponse;
 
-    public function __construct(BiodataService $biodataService)
+    public function __construct(BiodataService $biodataService, ApiResponseService $apiResponse)
     {
         $this->biodataService = $biodataService;
+        $this->apiResponse = $apiResponse;
     }
 
     public function getProfile(): JsonResponse
     {
-        try {
-            $response = $this->biodataService->getBiodata();
-
-            if ($response) {
-                return ApiResponse::success(
-                    status: 'success',
-                    message: 'Applicant profile retrieved successfully',
-                    data: $response,
-                    statusCode: Response::HTTP_OK
-                );
-            }
-
-            return ApiResponse::error(
-                status: 'error',
-                message: 'Unable to retrieve applicant`s profile.',
-                statusCode: Response::HTTP_UNAUTHORIZED
-            );
-        } catch (\Exception $e) {
-            return ApiResponse::error(
-                status: 'error',
-                message: $e->getMessage(),
-                statusCode: Response::HTTP_UNAUTHORIZED
-            );
-        }
+        return $this->apiResponse->respond(
+            fn() => $this->biodataService->getBiodata(),
+            'Applicant profile retrieved successfully.',
+            'Unable to retrieve applicant`s profile.',
+            Response::HTTP_OK,
+            fn($response) => !empty($response)
+        );
     }
 
     public function saveProfile(Profile $request): JsonResponse
     {
-        try {
-            $response = $this->biodataService->saveBiodata($request);
-
-            if ($response) {
-                return ApiResponse::success(
-                    status: 'success',
-                    message: 'Applicant profile saved successfully',
-                    data: $response,
-                    statusCode: Response::HTTP_OK
-                );
-            }
-
-            return ApiResponse::error(
-                status: 'error',
-                message: 'Unable to saved applicant`s profile.',
-                statusCode: Response::HTTP_UNAUTHORIZED
-            );
-        } catch (\Exception $e) {
-            return ApiResponse::error(
-                status: 'error',
-                message: $e->getMessage(),
-                statusCode: Response::HTTP_UNAUTHORIZED
-            );
-        }
+        return $this->apiResponse->respond(
+            fn() => $this->biodataService->saveBiodata($request),
+            'Applicant profile saved successfully.',
+            'Unable to save applicant`s profile.',
+            Response::HTTP_OK,
+            fn($response) => !empty($response)
+        );
     }
 }

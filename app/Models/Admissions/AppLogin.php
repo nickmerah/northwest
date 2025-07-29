@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * @mixin \Laravel\Passport\HasApiTokens
+ * @method \Laravel\Passport\Token|null token()
+ */
 class AppLogin extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;

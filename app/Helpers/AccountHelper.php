@@ -72,6 +72,11 @@ class AccountHelper
         return $data;
     }
 
+    public function clearCachedApplicantData(int $userId): void
+    {
+        Cache::forget("applicant:{$userId}");
+    }
+
     public function getMinimalApplicant($applicant): array
     {
         return [

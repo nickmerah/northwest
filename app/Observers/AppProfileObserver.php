@@ -16,6 +16,6 @@ class AppProfileObserver
         $appProfile =  $appProfile->fresh();
         $accountHelper = app(AccountHelper::class);
         $data = $accountHelper->cacheApplicantData($appProfile->std_logid);
-        Cache::put("applicant:{$appProfile->std_logid}", $data, now()->addMinutes(5));
+        Cache::put("applicant:{$appProfile->std_logid}", $data, now()->addHour());
     }
 }

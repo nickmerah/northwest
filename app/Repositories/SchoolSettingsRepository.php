@@ -22,13 +22,13 @@ class SchoolSettingsRepository implements SchoolSettingsRepositoryInterface
     public function getProgramme()
     {
         return Programmes::where('p_status', 1)
-            ->get(['programme_id', 'programme_name', 'aprogramme_name']);
+            ->get(['programme_id', 'programme_name', 'aprogramme_name'])->toArray();
     }
 
     public function getProgrammeTypes()
     {
         return ProgrammeType::where('pt_status', 1)
-            ->get(['programmet_id', 'programmet_name']);
+            ->get(['programmet_id', 'programmet_name'])->toArray();
     }
 
 
