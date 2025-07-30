@@ -10,7 +10,7 @@ interface PaymentRepositoryInterface
 
     public function logTransaction(string $data, string $responseType): void;
 
-    public function saveTransaction(array $data, array $feesToPay, array $paystackResponse, string $gateway, string $redirectUrl): void;
+    public function saveTransaction(array $data, array $feesToPay, array $paystackResponse, string $gateway, string $redirectUrl): array;
 
     public function fetchTransactionDetails(string $transactionId): array;
 

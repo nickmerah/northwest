@@ -131,7 +131,7 @@
                                       @if ($hasApplicationFee)
                                       <b style="color:green">PAID</b>
                                       @else
-                                      <b style="color:red">NOT PAID | <a href='#'>PAY NOW</a></b>
+                                      <b style="color:red">NOT PAID | <a href="{{ route('admissions.paynow') }}">PAY NOW</a></b>
                                       @endif </span></p>
                           </div>
                       </div>

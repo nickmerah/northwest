@@ -28,13 +28,13 @@ class PayStackGateway extends AbstractPaymentGateway
         $transactionDetails = $this->getTransactionDetails($applicant, $feeType);
 
         if ($transactionDetails) {
-            return ['transactionDetails' => $transactionDetails, 'generateStatus' => false];
+            return ['generateStatus' => false, 'paymentDetails' => $transactionDetails];
         }
 
         //CONFIGURE paystack setup and generate ref
-        $paystackDetails = $this->getPayStackPaymentURL($applicant, $feeType, $redirectUrl);
+        $transactionDetails = $this->getPayStackPaymentURL($applicant, $feeType, $redirectUrl);
 
-        return ['generateStatus' => true, 'paymentDetails' => $paystackDetails];
+        return ['generateStatus' => true, 'paymentDetails' => $transactionDetails];
     }
 
     protected function getPayStackPaymentURL(array $applicant, int $feeType, string $redirectUrl): array
@@ -65,9 +65,9 @@ class PayStackGateway extends AbstractPaymentGateway
         $this->paymentRepository->logTransaction(stripslashes(json_encode($paystackResponse)), "Response");
 
         //save response to db
-        $this->savePayment($applicant, $feesToPay, $paystackResponse, self::PAYMENT_METHOD_PAYSTACK, $redirectUrl);
+        $transactionDetails = $this->savePayment($applicant, $feesToPay, $paystackResponse, self::PAYMENT_METHOD_PAYSTACK, $redirectUrl);
 
-        return $paystackResponse;
+        return $transactionDetails;
     }
 
     private function makePayStackApiCall(array $applicant, int $totalamount, int $schoolshare, int $orderId, array $config): ?array
@@ -128,9 +128,9 @@ class PayStackGateway extends AbstractPaymentGateway
         return $data;
     }
 
-    public function savePayment(array $applicant, array $feesToPay, array $paystackResponse, string $gateway, string $redirectUrl): void
+    public function savePayment(array $applicant, array $feesToPay, array $paystackResponse, string $gateway, string $redirectUrl): array
     {
-        $this->paymentRepository->saveTransaction($applicant, $feesToPay, $paystackResponse,  $gateway, $redirectUrl);
+        return $this->paymentRepository->saveTransaction($applicant, $feesToPay, $paystackResponse,  $gateway, $redirectUrl);
     }
 
     public function retrieveTransactionDetails(string $transactionId): array

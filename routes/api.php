@@ -29,7 +29,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/getolevelgrades', [SchoolSettingsController::class, 'getOlevelGrades']);
     Route::get('/courses-of-study/{programmeId}/{programmeTypeId}', [SchoolSettingsController::class, 'getCoursesOfStudy']);
     Route::post('/register', [AccountController::class, 'register']);
-    Route::post('/login', [AccountController::class, 'login']);
+    Route::post('/login', [AccountController::class, 'login'])->middleware('throttle:8,1');
     Route::post('/forgotpassword', [AccountController::class, 'resetpassword']);
 
     Route::middleware('auth:api')->group(function () {

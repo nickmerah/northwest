@@ -17,7 +17,7 @@ class PaymentServiceProvider extends ServiceProvider
                 'accomodation' => 500,
                 'portalFee' => 2000,
                 'callback_url' => "https://portal.bawocons.edu.ng/paymentresponse",
-                'cancel_action_url' => "https://portal.bawocons.edu.ng/paystackcancelaction",
+                'cancel_action_url' => "http://localhost/northwest/admissions/dashboard",
             ];
         });
     }

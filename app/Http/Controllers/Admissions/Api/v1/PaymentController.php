@@ -32,14 +32,14 @@ class PaymentController extends Controller
                 $redirectUrl = $this->paymentfactory::sanitizeRedirectUrl($request['redirectUrl']);
                 return $gateway->processPayment($request['feeType'], $redirectUrl);
             },
-            successMessage: 'Payment details retrieved successfully.',
+            successMessage: 'Payment generated successfully.',
             errorMessage: 'Error generating transaction reference.',
             successStatus: Response::HTTP_OK,
             successCondition: fn($response) => $response && isset($response['generateStatus']),
             transform: function ($response) {
                 $message = $response['generateStatus'] === false
                     ? 'Transaction ID already generated.'
-                    : 'Payment details retrieved successfully.';
+                    : 'Payment details saved successfully.';
                 return array_merge(['message' => $message], $response);
             }
         );

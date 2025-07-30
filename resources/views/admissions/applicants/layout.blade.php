@@ -82,7 +82,7 @@
                     </div>
                     <ul class="sidebar-menu">
                         <li class="menu-header">MENU</li>
-                        <li><a class="nav-link" href="#"><i data-feather="monitor"></i><span>Home</span></a></li>
+                        <li><a class="nav-link" href="{{ route('admissions.dashboard') }}"><i data-feather="monitor"></i><span>Home</span></a></li>
                         <li><a class="nav-link" href="#"><i data-feather="monitor"></i><span>My Application</span></a></li>
                         <li><a class="nav-link" href="#"><i data-feather="download"></i><span>Application Forms</span></a></li>
 
@@ -92,9 +92,9 @@
 
 
 
-                        <li><a class="nav-link" href="#"><i data-feather="check"></i><span>Check Payment</span></a></li>
-                        <li><a class="nav-link" href="#"><i data-feather="dollar-sign"></i><span>Payment History</span></a></li>
-                        <li><a class="nav-link" href="#"><i data-feather="log-out"></i><span>Logout</span></a></li>
+                        <li><a class="nav-link" href="{{ route('admissions.checkpayment') }}"><i data-feather="check"></i><span>Check Payment</span></a></li>
+                        <li><a class="nav-link" href="{{ route('admissions.paymenthistory') }}"><i data-feather="dollar-sign"></i><span>Payment History</span></a></li>
+                        <li><a class="nav-link" href="{{ route('admissions.logout') }}"><i data-feather="log-out"></i><span>Logout</span></a></li>
 
 
                     </ul>

@@ -17,7 +17,7 @@ class PaymentRepository implements PaymentRepositoryInterface
         $data = AppTransaction::where([
             'log_id' => $applicant['id'],
             'fee_id' => $feeId,
-        ])->first(['trans_no', 'trans_custom1']);
+        ])->first(['trans_no', 'trans_custom1', 'rrr', 'fullnames', 'appno', 'trans_year', 't_date', 'fee_name', 'fee_amount']);
 
         if (!$data) {
             return null;
@@ -26,6 +26,13 @@ class PaymentRepository implements PaymentRepositoryInterface
         return [
             'transactionID' => $data->trans_no,
             'paymentStatus' => $data->trans_custom1,
+            'paymentUrl' => $data->rrr,
+            'fullNames' => $data->fullnames,
+            'applicationNo' => $data->appno,
+            'appYear' => $data->trans_year,
+            'transactionDate' => $data->t_date,
+            'feeName' => $data->fee_name,
+            'feeAmount' => $data->fee_amount,
         ];
     }
 
@@ -64,20 +71,20 @@ class PaymentRepository implements PaymentRepositoryInterface
         ]);
     }
 
-    public function saveTransaction(array $applicant, array $feesToPay, array $paystackResponse, string $gateway, string $redirectUrl): void
+    public function saveTransaction(array $applicant, array $feesToPay, array $paystackResponse, string $gateway, string $redirectUrl): array
     {
         $session = AppSession::getAppCurrentSession();
         $now = now();
 
         $fullnames = trim("{$applicant['surname']} {$applicant['firstname']} {$applicant['othernames']}");
 
-        AppTransaction::insert([
+        $transaction = AppTransaction::create([
             'log_id'         => $applicant['id'],
             'fee_id'         => $feesToPay['feeId'],
             'fee_name'       => $feesToPay['feeName'],
             'fee_amount'     => $feesToPay['amount'],
             'trans_no'       => $paystackResponse['data']['reference'],
-            'rrr'            => $paystackResponse['data']['access_code'],
+            'rrr'            => $paystackResponse['data']['authorization_url'],
             'paychannel'     => $gateway,
             'fullnames'      => $fullnames,
             'appno'          => $applicant['applicationNumber'],
@@ -88,6 +95,18 @@ class PaymentRepository implements PaymentRepositoryInterface
             'trans_year'     => $session,
             'redirect_url'     => $redirectUrl,
         ]);
+
+        return [
+            'feeName'         => $transaction->fee_name,
+            'feeAmount'       => $transaction->fee_amount,
+            'transactionID'   => $transaction->trans_no,
+            'paymentUrl'      => $transaction->rrr,
+            'fullNames'       => $transaction->fullnames,
+            'applicationNo'   => $transaction->appno,
+            'transactionDate' => $transaction->t_date,
+            'appYear'         => $transaction->trans_year,
+            'paymentStatus'   => 'Pending',
+        ];
     }
 
     public function fetchTransactionDetails(string $transactionId): array
@@ -159,7 +178,7 @@ class PaymentRepository implements PaymentRepositoryInterface
         $records = AppTransaction::where([
             'log_id' => Auth::user()?->log_id,
             'trans_custom1' => 'Paid',
-        ])->get(['trans_no', 'trans_custom1', 'fee_amount', 'trans_year', 't_date', 'fee_name']);
+        ])->get(['trans_no', 'trans_custom1', 'fee_amount', 'trans_year', 't_date', 'fee_name', 'fullnames', 'appno']);
 
         if ($records->isEmpty()) {
             return [];
@@ -167,6 +186,8 @@ class PaymentRepository implements PaymentRepositoryInterface
 
         return $records->map(function ($item) {
             return [
+                'applicationNo' => $item->appno,
+                'fullNames' => $item->fullnames,
                 'transactionID' => $item->trans_no,
                 'paymentStatus' => $item->trans_custom1,
                 'amount' => $item->fee_amount,
