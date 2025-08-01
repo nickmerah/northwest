@@ -49,7 +49,7 @@ class Profile extends FormRequest
             'nextofKinEmail' => 'required|email|max:150',
             'nextofKinPhoneNo' => 'required|digits_between:11,13',
             'nextofKinRelationship' => 'required|string|max:50',
-            'updateWithPassport' => ['required', Rule::in(['true', 'false'])],
+            'updateWithPassport' => ['required', Rule::in(['1', '0'])],
             'profilePicture' => [
                 'sometimes',
                 function ($attribute, $value, $fail) {

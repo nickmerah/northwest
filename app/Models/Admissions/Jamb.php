@@ -19,4 +19,9 @@ class Jamb extends Model
     {
         $this->attributes['subjectname'] = strtoupper($value);
     }
+
+    public function setJambnoAttribute($value)
+    {
+        $this->attributes['jambno'] = strtoupper($value);
+    }
 }

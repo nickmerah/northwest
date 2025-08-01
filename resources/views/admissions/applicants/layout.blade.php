@@ -83,7 +83,7 @@
                     <ul class="sidebar-menu">
                         <li class="menu-header">MENU</li>
                         <li><a class="nav-link" href="{{ route('admissions.dashboard') }}"><i data-feather="monitor"></i><span>Home</span></a></li>
-                        <li><a class="nav-link" href="#"><i data-feather="monitor"></i><span>My Application</span></a></li>
+                        <li><a class="nav-link" href="{{ route('admissions.myapplication') }}"><i data-feather="monitor"></i><span>My Application</span></a></li>
                         <li><a class="nav-link" href="#"><i data-feather="download"></i><span>Application Forms</span></a></li>
 
 

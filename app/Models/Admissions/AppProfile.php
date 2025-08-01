@@ -122,6 +122,41 @@ class AppProfile extends Model
         $this->attributes['student_email'] = strtolower($value);
     }
 
+    public function setStudentHomeAddressAttribute($value)
+    {
+        $this->attributes['student_homeaddress'] = strtoupper($value);
+    }
+
+    public function setContactAddressAttribute($value)
+    {
+        $this->attributes['contact_address'] = strtoupper($value);
+    }
+
+    public function setHomeTownAttribute($value)
+    {
+        $this->attributes['hometown'] = strtoupper($value);
+    }
+
+    public function setNextOfKinAttribute($value)
+    {
+        $this->attributes['next_of_kin'] = strtoupper($value);
+    }
+
+    public function setNokAddressAttribute($value)
+    {
+        $this->attributes['nok_address'] = strtoupper($value);
+    }
+
+    public function setNokEmailAttribute($value)
+    {
+        $this->attributes['nok_email'] = strtolower($value);
+    }
+
+    public function setNokRelAttribute($value)
+    {
+        $this->attributes['nok_rel'] = strtoupper($value);
+    }
+
     public static function getUserData(int $userId, ?Request $request): array
     {
         $applicant = AppProfile::query()

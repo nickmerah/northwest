@@ -26,7 +26,17 @@ Route::middleware('checkApplicantSession')->group(
         Route::get('/admissions/checkpayment', [PaymentsController::class, 'verifypayment'])->name('admissions.checkpayment');
         Route::get('/admissions/paymenthistory', [PaymentsController::class, 'transactionhistory'])->name('admissions.paymenthistory');
         Route::get('/admissions/receipt/{transactionId?}', [PaymentsController::class, 'paymentreceipt'])->name('admissions.receipt');
+        Route::get('/admissions/myapplication', [ApplicantController::class, 'applicationhome'])->name('admissions.myapplication');
+        Route::get('/admissions/biodata', [ApplicantController::class, 'biodata'])->name('admissions.biodata');
+        Route::post('/admissions/biodata', [ApplicantController::class, 'savebiodata'])->name('admissions.biodata');
+        Route::get('/admissions/olevel', [ApplicantController::class, 'olevel'])->name('admissions.olevel');
+        Route::post('/admissions/olevel', [ApplicantController::class, 'saveolevel'])->name('admissions.olevel');
+        Route::get('/admissions/jamb', [ApplicantController::class, 'jamb'])->name('admissions.jamb');
+        Route::post('/admissions/jamb', [ApplicantController::class, 'savejamb'])->name('admissions.jamb');
+        Route::get('/admissions/school', [ApplicantController::class, 'school'])->name('admissions.school');
+        Route::post('/admissions/school', [ApplicantController::class, 'saveschool'])->name('admissions.school');
 
+        Route::get('/admissions/declaration', [ApplicantController::class, 'jamb'])->name('admissions.declaration');
 
         Route::get('/admissions/logout', [ApplicantController::class, 'logout'])->name('admissions.logout');
     }

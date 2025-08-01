@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Admissions\Api\v1;
 
 
 use App\Http\Requests\Lga;
-use App\Helpers\ApiResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Services\ApiResponseService;
@@ -90,7 +88,7 @@ class SchoolSettingsController extends Controller
         );
     }
 
-    public function getOlevelSubjects(Lga $request): JsonResponse
+    public function getOlevelSubjects(): JsonResponse
     {
         return $this->apiResponse->respond(
             fn() => $this->schoolSettingsRepository->getOlevelSubjects(),
