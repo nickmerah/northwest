@@ -123,10 +123,11 @@ class AccountHelper
         $applicant = Auth::user();
         $schoolname = strtoupper(config('school.name'));
 
-        $text = "I, {$applicant->log_surname} {$applicant->log_firstname} {$applicant->log_othernames} hereby declare that the information given in this form is correct. "
+        $text = "I, <strong>{$applicant->log_surname} {$applicant->log_firstname} {$applicant->log_othernames}</strong> hereby declare that the information given in this form is correct. "
             . "I understand that I will be held liable for any information therein. "
             . "I also understand that if any information given is later found to be false, incomplete, or misleading, "
-            . "the {$schoolname} reserves the right to take appropriate disciplinary measures against me.";
+            . "the <strong>{$schoolname}</strong> reserves the right to take appropriate disciplinary measures against me.";
+
 
         return ['declarationtext' => $text];
     }

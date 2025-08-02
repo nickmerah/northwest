@@ -13,7 +13,6 @@ class SchoolAttended extends Model
     public $timestamps = false;
     protected $table = 'jeduhistory';
 
-    //certObtained = grade
     protected $fillable = ['std_id', 'schoolname', 'ndmatno', 'cos', 'grade', 'fromdate', 'todate'];
 
 

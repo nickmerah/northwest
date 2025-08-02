@@ -61,6 +61,7 @@
                                       $olevel = $applicantStatus['olevels'];
                                       $jambCompleted = $applicantStatus['jambResult'] == 0 ? 0 : 1;
                                       $schoolAttended = $applicantStatus['schoolattended'] == 0 ? 0 : 1;
+                                      $certificateUpload = $applicantStatus['ndcertificate'] == 0 ? 0 : 1;
                                       $declaration = $applicantStatus['declaration'] == 0 ? 0 : 1;
                                       $applicationSubmit = $applicantStatus['applicationSubmit'] == 0 ? 0 : 1;
                                       @endphp
@@ -175,6 +176,28 @@
                                           </td>
                                       </tr>
                                       {{-- @endif--}}
+
+                                      <tr>
+                                          <td>
+                                              <div class="sort-handler">
+                                                  <i class="fas fa-th"></i>
+                                              </div>
+                                          </td>
+
+                                          <td>Certificate Uploads </td>
+
+                                          <td>
+                                              <div class="badge badge-{{ $certificateUpload == 0 ? 'danger' : 'success' }}">
+                                                  {{ $certificateUpload == 0 ? 'Not Completed' : 'Completed' }}
+                                              </div>
+                                          </td>
+
+                                          <td>
+                                              <a href="{{ route('admissions.certupload') }}" class="btn btn-{{ $certificateUpload == 0 ? 'warning' : 'success' }}">
+                                                  {{ $certificateUpload == 0 ? 'Start' : 'Completed' }}
+                                              </a>
+                                          </td>
+                                      </tr>
                                       <tr>
                                           <td>
                                               <div class="sort-handler">
@@ -203,28 +226,8 @@
                       </div>
 
                       @if ($applicationSubmit)
-                      <a href="{{ url('applicant/application_forms') }}" class="btn btn-success">
+                      <a href="{{ route('admissions.applicationforms') }}" class="btn btn-success">
                           <i class="fas fa-check"></i> Proceed to Print Your Application Forms
-                      </a>
-                      @elseif (
-                      $biodata &&
-                      $schoolAttended &&
-                      $olevel &&
-                      $declaration &&
-                      $applicantProgramme == 2
-                      )
-                      <a href="{{ url('applicant/application_preview') }}" class="btn btn-warning">
-                          <i class="fas fa-check"></i> Preview & Submit Application
-                      </a>
-                      @elseif (
-                      $biodata &&
-                      $olevel &&
-                      $jambCompleted &&
-                      $declaration &&
-                      $applicantProgramme == 1
-                      )
-                      <a href="{{ url('applicant/application_preview') }}" class="btn btn-warning">
-                          <i class="fas fa-check"></i> Preview & Submit Application
                       </a>
                       @endif
 

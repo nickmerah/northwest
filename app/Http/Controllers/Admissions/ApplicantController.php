@@ -112,26 +112,88 @@ class ApplicantController extends BaseController
 
     public function school()
     {
-        $jambResults =  $this->applicationService->getSchool()['data'];
-        $olevelSubjects =  $this->applicationService->getOlevelSubjects()['data'];
+        $schoolDetails =  $this->applicationService->getSchool()['data'];
 
-        return view(
-            'admissions.applicants.jamb',
-            compact('jambResults', 'olevelSubjects')
-        );
+        return view('admissions.applicants.schoolattended', compact('schoolDetails'));
     }
 
     public function saveschool(Request $request)
     {
-        $response = $this->applicationService->savejamb($request);
+        $response = $this->applicationService->saveSchool($request);
 
         if ($response['success']) {
 
             $this->applicationService->refreshApplicantCache(session('user')['id'], session('access_token'));
 
-            return redirect()->route('admissions.jamb')->with('success', $response['message']);
+            return redirect()->route('admissions.school')->with('success', $response['message']);
         }
-        return redirect()->route('admissions.jamb')->with('error', 'Unable to add  jamb results, try Again!');
+        return redirect()->route('admissions.school')->with('error', 'Unable to add  school details, try Again!');
+    }
+
+    public function certupload()
+    {
+        $certificates =  (object) $this->applicationService->getCertificates()['data'];
+
+        return view('admissions.applicants.uploadcertificate', compact('certificates'));
+    }
+
+    public function savecertupload(Request $request)
+    {
+        $response = $this->applicationService->uploadCertificates($request);
+
+        if ($response['success']) {
+
+            $this->applicationService->refreshApplicantCache(session('user')['id'], session('access_token'));
+
+            return redirect()->route('admissions.certupload')->with('success', $response['message']);
+        }
+        return redirect()->route('admissions.certupload')->with('error', 'Unable to upload certificates, try Again!');
+    }
+
+    public function deletecertupload()
+    {
+        $response = $this->applicationService->deleteCertificates();
+
+        if ($response['success']) {
+
+            $this->applicationService->refreshApplicantCache(session('user')['id'], session('access_token'));
+        }
+        return redirect()->route('admissions.certupload');
+    }
+
+    public function declares()
+    {
+        $data = ApplicationHelper::getApplicanData();
+        $biodetail = (object) $data->user;
+        $olevelResults = (object) $this->applicationService->getOlevelResults()['data'];
+        $jambResults =  $this->applicationService->getJambResults()['data'];
+        $schoolDetails =  $this->applicationService->getSchool()['data'];
+        $certificates =  (object) $this->applicationService->getCertificates()['data'];
+        $declaration =  $this->applicationService->getDecalaration()['data'];
+
+
+        return view('admissions.applicants.declaration', compact('declaration', 'biodetail', 'olevelResults', 'jambResults', 'schoolDetails', 'certificates'));
+    }
+
+    public function savedeclares()
+    {
+        $response = $this->applicationService->saveDecalaration();
+
+        if ($response['success']) {
+
+            $this->applicationService->refreshApplicantCache(session('user')['id'], session('access_token'));
+
+            return redirect()->route('admissions.myapplication')->with('success', $response['message']);
+        }
+        return redirect()->route('admissions.myapplication')->with('error', 'Unable to save declaration, try Again!');
+    }
+
+    public function applicationforms()
+    {
+        $data = ApplicationHelper::getApplicanData();
+        $applicantStatus = $data->stats;
+
+        return view('admissions.applicants.applicationforms', compact('applicantStatus'));
     }
 
     public function logout()

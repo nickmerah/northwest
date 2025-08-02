@@ -114,7 +114,7 @@ class ApplicationService
 
             return [
                 'success' => false,
-                'message' => 'Registration failed.',
+                'message' => 'Saving of profile failed.',
                 'data'    => $response->json(),
             ];
         } catch (\Exception $e) {
@@ -268,7 +268,7 @@ class ApplicationService
 
             return [
                 'success' => false,
-                'message' => 'Registration failed.',
+                'message' => 'Saving of Olevel failed.',
                 'data'    => $response->json(),
             ];
         } catch (\Exception $e) {
@@ -298,7 +298,7 @@ class ApplicationService
 
             return [
                 'success' => false,
-                'message' => "Unable to retrieve applicant'sJamb  results.",
+                'message' => "Unable to retrieve applicant's Jamb  results.",
                 'data'    => $response->json(),
             ];
         } catch (\Exception $e) {
@@ -332,7 +332,251 @@ class ApplicationService
 
             return [
                 'success' => false,
-                'message' => 'Registration failed.',
+                'message' => 'Saving of Jamb results failed.',
+                'data'    => $response->json(),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'data'    => [],
+            ];
+        }
+    }
+
+    public function getSchool(): array
+    {
+        $response = Http::withToken(session('access_token'))->get(
+            config('app.url') . '/api/v1/schoolattended'
+        );
+
+        try {
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'message' => $response['message'],
+                    'data'    => $response->json(),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => "Unable to retrieve applicant's Jamb  results.",
+                'data'    => $response->json(),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'data'    => [],
+            ];
+        }
+    }
+
+    public function saveSchool(Request $request): array
+    {
+        $response = Http::withToken(session('access_token'))->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(
+            config('app.url') . '/api/v1/schoolattended',
+            $request->only([
+                'schoolName',
+                'ndMatno',
+                'courseofstudy',
+                'grade',
+                'fromDate',
+                'toDate',
+            ])
+        );
+
+        try {
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'message' => $response['message'],
+                    'data'    => $response->json(),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Saving of school details failed.',
+                'data'    => $response->json(),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'data'    => [],
+            ];
+        }
+    }
+
+    public function getCertificates(): array
+    {
+        $response = Http::withToken(session('access_token'))->get(
+            config('app.url') . '/api/v1/resultupload'
+        );
+
+        try {
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'message' => $response['message'],
+                    'data'    => $response->json(),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => "Unable to retrieve applicant's Certificates.",
+                'data'    => $response->json(),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'data'    => [],
+            ];
+        }
+    }
+
+    public function uploadCertificates(Request $request): array
+    {
+
+        $client = Http::withToken(session('access_token'))
+            ->asMultipart()
+            ->withHeaders(['Accept' => 'application/json']);
+
+        $files = [
+            'jamb_result',
+            'o_level_result',
+            'birth_certificate',
+        ];
+
+        foreach ($files as $field) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
+
+                $client->attach(
+                    $field, // API expects the exact field name here
+                    file_get_contents($file->getRealPath()),
+                    $file->getClientOriginalName()
+                );
+            }
+        }
+
+        $response = $client->post(config('app.url') . '/api/v1/resultupload');
+
+        try {
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'message' => $response['message'],
+                    'data'    => $response->json(),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Certificates Upload failed.',
+                'data'    => $response->json(),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'data'    => [],
+            ];
+        }
+    }
+
+    public function deleteCertificates(): array
+    {
+        $response = Http::withToken(session('access_token'))->delete(
+            config('app.url') . '/api/v1/removeresult'
+        );
+
+        try {
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'message' => $response['message'],
+                    'data'    => [],
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => "Unable to delete applicant's Certificates.",
+                'data'    => [],
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'data'    => [],
+            ];
+        }
+    }
+
+    public function getDecalaration(): array
+    {
+        $response = Http::withToken(session('access_token'))->get(
+            config('app.url') . '/api/v1/declaration'
+        );
+
+        try {
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'message' => $response['message'],
+                    'data'    => $response->json(),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => "Unable to retrieve applicant's Certificates.",
+                'data'    => $response->json(),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'data'    => [],
+            ];
+        }
+    }
+
+    public function saveDecalaration(): array
+    {
+
+        $response = Http::withToken(session('access_token'))->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(
+            config('app.url') . '/api/v1/declaration'
+        );
+
+        try {
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'message' => $response['message'],
+                    'data'    => $response->json(),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Certificates Upload failed.',
                 'data'    => $response->json(),
             ];
         } catch (\Exception $e) {

@@ -73,8 +73,8 @@
                               </div>
                           </div>
 
-                          @if (!empty($jambs))
-                          <a href="{{ url('applicant/declares') }}" class="btn btn-info">
+                          @if (!empty($jambResults))
+                          <a href="{{ route('admissions.school') }}" class="btn btn-info">
                               <i class="fas fa-info"></i> Click here to Save and Continue
                           </a>
                           @endif

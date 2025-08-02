@@ -168,7 +168,7 @@ class ResultRepository implements ResultsRepositoryInterface
     {
         $appProfile = AppProfile::where('std_logid', $applicantId)->first();
 
-        if ($appProfile && in_array($column, ['std_custome5', 'std_custome6', 'std_custome7'])) {
+        if ($appProfile && in_array($column, ['std_custome5', 'std_custome6', 'std_custome7', 'ndcert'])) {
             $appProfile->update([$column => 1]);
         }
     }
@@ -189,6 +189,8 @@ class ResultRepository implements ResultsRepositoryInterface
             ];
         }, $uploadedResults);
 
+        $this->updateAppProfile($applicantId, 'ndcert');
+
         return $results;
     }
 
@@ -203,6 +205,12 @@ class ResultRepository implements ResultsRepositoryInterface
 
     public function deleteDocumentRecords(int $applicantId): bool
     {
-        return Certificates::where('stdid', $applicantId)->delete() > 0;
+        $removeCertificate =  Certificates::where('stdid', $applicantId)->delete() > 0;
+        $appProfile = AppProfile::where('std_logid', $applicantId)->first();
+        if ($appProfile) {
+            $appProfile->update(['ndcert' => 0]);
+        }
+
+        return $removeCertificate;
     }
 }

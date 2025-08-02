@@ -35,8 +35,12 @@ Route::middleware('checkApplicantSession')->group(
         Route::post('/admissions/jamb', [ApplicantController::class, 'savejamb'])->name('admissions.jamb');
         Route::get('/admissions/school', [ApplicantController::class, 'school'])->name('admissions.school');
         Route::post('/admissions/school', [ApplicantController::class, 'saveschool'])->name('admissions.school');
-
-        Route::get('/admissions/declaration', [ApplicantController::class, 'jamb'])->name('admissions.declaration');
+        Route::get('/admissions/certupload', [ApplicantController::class, 'certupload'])->name('admissions.certupload');
+        Route::post('/admissions/certupload', [ApplicantController::class, 'savecertupload'])->name('admissions.certupload');
+        Route::get('/admissions/removecert', [ApplicantController::class, 'deletecertupload'])->name('admissions.removecert');
+        Route::get('/admissions/declaration', [ApplicantController::class, 'declares'])->name('admissions.declaration');
+        Route::post('/admissions/declaration', [ApplicantController::class, 'savedeclares'])->name('admissions.declaration');
+        Route::get('/admissions/applicationforms', [ApplicantController::class, 'applicationforms'])->name('admissions.applicationforms');
 
         Route::get('/admissions/logout', [ApplicantController::class, 'logout'])->name('admissions.logout');
     }

@@ -90,9 +90,9 @@ class ResultsService
         $applicant = Cache::get("applicant:{$applicantId}")
             ?? abort(Response::HTTP_BAD_REQUEST, 'Cached applicant not found.');
 
-        // Fee check
+        //check if olevel has been saved
         if ($applicant['olevels'] === 0) {
-            abort(Response::HTTP_BAD_REQUEST, 'You can only upload results after paying the requisite fee');
+            abort(Response::HTTP_BAD_REQUEST, 'You can only upload results after saving your olevel results');
         }
 
         $documents = [
@@ -126,12 +126,10 @@ class ResultsService
                         continue;
                     }
 
-                    // Store
                     $timestamp = now()->format('dmYHis');
                     $fileName = "{$timestamp}_" . strtolower(str_replace(' ', '_', $documentName)) . '.pdf';
-                    $file->storeAs('documents', $fileName);
+                    $file->storeAs('documents', $fileName, 'public');
 
-                    // Prepare for DB
                     $certificatesToSave[] = [
                         'stdid' => $applicantId,
                         'docname' => $documentName,
@@ -168,9 +166,10 @@ class ResultsService
 
         foreach ($documents as $doc) {
             $filePath = 'documents/' . $doc['uploadName'];
+            Storage::disk('public')->exists($filePath);
 
-            if (Storage::exists($filePath)) {
-                Storage::delete($filePath);
+            if (Storage::disk('public')->exists($filePath)) {
+                Storage::disk('public')->delete($filePath);
             }
         }
 
