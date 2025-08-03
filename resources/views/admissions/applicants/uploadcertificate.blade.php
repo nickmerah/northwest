@@ -48,7 +48,7 @@
                                       <tr>
                                           <td>{{ $docs['documentName']}}</td>
                                           <td>
-                                              <a href="{{ Storage::url('documents/' . $docs['uploadName']) }}" target="_blank">
+                                              <a href="{{ Storage::disk('public')->url('documents/' . $docs['uploadName']) }}" target="_blank">
                                                   View Document
                                               </a>
                                           </td>

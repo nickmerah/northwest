@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class ApplicationHelper
 {
@@ -16,10 +17,13 @@ class ApplicationHelper
     {
         $data = self::getApplicanData();
         $profilePicture = $data->user['profilePicture'];
-        // TODO, get passport if it exist
+        $photoPath = storage_path('app/public/app_passport/' . $profilePicture);
 
-        $path =  asset('public/images/avatar.jpg');
+        if (file_exists($photoPath)) {
+            return  Storage::disk('public')->url('app/public/app_passport/' . $profilePicture);
+        }
 
-        return  $path;
+
+        return  asset('public/images/avatar.jpg');
     }
 }

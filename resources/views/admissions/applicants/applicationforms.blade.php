@@ -59,10 +59,10 @@
                                           <p>Your application has been completed.</p>
                                           <hr>
                                           <p class="mb-0">
-                                              <a href="{{ url('applicant/application_form') }}" target="_blank">Print Application Form</a>
+                                              <a href="{{ route('admissions.applicationform') }}" target="_blank">Print Application Form</a>
                                           </p><br>
                                           <p class="mb-0">
-                                              <a href="{{ url('applicant/application_card') }}" target="_blank">Print Acknowledgement Card</a>
+                                              <a href="{{ route('admissions.applicationcard') }}" target="_blank">Print Acknowledgement Card</a>
                                           </p>
                                       </div>
                                   </div>

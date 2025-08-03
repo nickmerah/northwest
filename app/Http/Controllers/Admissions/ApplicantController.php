@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admissions;
 
+use Illuminate\View\View;
 use Illuminate\Http\Request;
 use App\Helpers\ApplicationHelper;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,7 @@ class ApplicantController extends BaseController
         $this->applicationService = $applicationService;
     }
 
-    public function applicationhome()
+    public function applicationhome(): View
     {
         $data = ApplicationHelper::getApplicanData();
         $applicantPayments = $data->applicationPaymentStatus;
@@ -34,7 +35,7 @@ class ApplicantController extends BaseController
         );
     }
 
-    public function biodata()
+    public function biodata(): View
     {
         $data = ApplicationHelper::getApplicanData();
         $applicantPayments = $data->applicationPaymentStatus;
@@ -61,7 +62,7 @@ class ApplicantController extends BaseController
         return redirect()->route('admissions.biodata')->with('error', 'Unable to update profile, try Again!');
     }
 
-    public function olevel()
+    public function olevel(): View
     {
         $olevelResults = (object) $this->applicationService->getOlevelResults()['data'];
         $olevelSubjects =   $this->applicationService->getOlevelSubjects()['data'];
@@ -86,7 +87,7 @@ class ApplicantController extends BaseController
         return redirect()->route('admissions.olevel')->with('error', 'Unable to add  olevel results, try Again!');
     }
 
-    public function jamb()
+    public function jamb(): View
     {
         $jambResults =  $this->applicationService->getJambResults()['data'];
         $olevelSubjects =  $this->applicationService->getOlevelSubjects()['data'];
@@ -110,7 +111,7 @@ class ApplicantController extends BaseController
         return redirect()->route('admissions.jamb')->with('error', 'Unable to add  jamb results, try Again!');
     }
 
-    public function school()
+    public function school(): View
     {
         $schoolDetails =  $this->applicationService->getSchool()['data'];
 
@@ -130,7 +131,7 @@ class ApplicantController extends BaseController
         return redirect()->route('admissions.school')->with('error', 'Unable to add  school details, try Again!');
     }
 
-    public function certupload()
+    public function certupload(): View
     {
         $certificates =  (object) $this->applicationService->getCertificates()['data'];
 
@@ -161,18 +162,10 @@ class ApplicantController extends BaseController
         return redirect()->route('admissions.certupload');
     }
 
-    public function declares()
+    public function declares(): View
     {
-        $data = ApplicationHelper::getApplicanData();
-        $biodetail = (object) $data->user;
-        $olevelResults = (object) $this->applicationService->getOlevelResults()['data'];
-        $jambResults =  $this->applicationService->getJambResults()['data'];
-        $schoolDetails =  $this->applicationService->getSchool()['data'];
-        $certificates =  (object) $this->applicationService->getCertificates()['data'];
-        $declaration =  $this->applicationService->getDecalaration()['data'];
-
-
-        return view('admissions.applicants.declaration', compact('declaration', 'biodetail', 'olevelResults', 'jambResults', 'schoolDetails', 'certificates'));
+        $data = $this->getApplicantFormData();
+        return view('admissions.applicants.declaration', $data);
     }
 
     public function savedeclares()
@@ -188,12 +181,28 @@ class ApplicantController extends BaseController
         return redirect()->route('admissions.myapplication')->with('error', 'Unable to save declaration, try Again!');
     }
 
-    public function applicationforms()
+    public function applicationforms(): View
     {
         $data = ApplicationHelper::getApplicanData();
         $applicantStatus = $data->stats;
 
         return view('admissions.applicants.applicationforms', compact('applicantStatus'));
+    }
+
+    public function applicationform(): View
+    {
+        $data = $this->getApplicantFormData();
+        $data['passportUrl'] = ApplicationHelper::getApplicantPassport();
+
+        return view('admissions.applicants.applicationform', $data);
+    }
+
+    public function applicationcard(): View
+    {
+        $data = $this->getApplicantFormData();
+        $data['passportUrl'] = ApplicationHelper::getApplicantPassport();
+
+        return view('admissions.applicants.applicationcard', $data);
     }
 
     public function logout()
@@ -207,5 +216,20 @@ class ApplicantController extends BaseController
         Auth::logout();
 
         return redirect()->route('admissions.starting')->with('error', 'You have been logged out');
+    }
+
+    private function getApplicantFormData(): array
+    {
+        $data = ApplicationHelper::getApplicanData();
+
+        return [
+            'biodetail'     => (object) $data->user,
+            'olevelResults' => (object) $this->applicationService->getOlevelResults()['data'],
+            'jambResults'   => $this->applicationService->getJambResults()['data'],
+            'schoolDetails' => $this->applicationService->getSchool()['data'],
+            'certificates'  => (object) $this->applicationService->getCertificates()['data'],
+            'declaration'   => $this->applicationService->getDecalaration()['data'],
+            'applicantStatus' => $data->stats,
+        ];
     }
 }

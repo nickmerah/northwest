@@ -6,7 +6,6 @@ use App\Http\Controllers\Admissions\PaymentsController;
 use App\Http\Controllers\Admissions\ApplicantController;
 use App\Http\Controllers\Admissions\DashboardController;
 
-
 Route::get('/admissions', [HomeController::class, 'index'])->name('admissions');
 Route::get('/admissions/admreq', [HomeController::class, 'admreq'])->name('admissions.admreq');
 Route::get('/admissions/startpart', [HomeController::class, 'startpart'])->name('admissions.startpart');
@@ -41,7 +40,8 @@ Route::middleware('checkApplicantSession')->group(
         Route::get('/admissions/declaration', [ApplicantController::class, 'declares'])->name('admissions.declaration');
         Route::post('/admissions/declaration', [ApplicantController::class, 'savedeclares'])->name('admissions.declaration');
         Route::get('/admissions/applicationforms', [ApplicantController::class, 'applicationforms'])->name('admissions.applicationforms');
-
+        Route::get('/admissions/applicationform', [ApplicantController::class, 'applicationform'])->name('admissions.applicationform');
+        Route::get('/admissions/applicationcard', [ApplicantController::class, 'applicationcard'])->name('admissions.applicationcard');
         Route::get('/admissions/logout', [ApplicantController::class, 'logout'])->name('admissions.logout');
     }
 );

@@ -74,7 +74,6 @@
                         </a>
                     </div>
                     <div class="sidebar-user">
-
                         <div class="sidebar-user-details">
                             <div class="user-name">ADMISSION PORTAL </div>
 
@@ -85,18 +84,9 @@
                         <li><a class="nav-link" href="{{ route('admissions.dashboard') }}"><i data-feather="monitor"></i><span>Home</span></a></li>
                         <li><a class="nav-link" href="{{ route('admissions.myapplication') }}"><i data-feather="monitor"></i><span>My Application</span></a></li>
                         <li><a class="nav-link" href="{{ route('admissions.applicationforms') }}"><i data-feather="download"></i><span>Application Forms</span></a></li>
-
-
-
-
-
-
-
                         <li><a class="nav-link" href="{{ route('admissions.checkpayment') }}"><i data-feather="check"></i><span>Check Payment</span></a></li>
                         <li><a class="nav-link" href="{{ route('admissions.paymenthistory') }}"><i data-feather="dollar-sign"></i><span>Payment History</span></a></li>
                         <li><a class="nav-link" href="{{ route('admissions.logout') }}"><i data-feather="log-out"></i><span>Logout</span></a></li>
-
-
                     </ul>
                 </aside>
             </div>

@@ -66,13 +66,6 @@ class PaymentsController extends BaseController
     public function paymentreceipt(int $transactionId)
     {
 
-        /*$stdphoto = $data['stddetails'][0]->std_photo;
-
-        $path = base_url('writable/thumbs/' . $stdphoto);
-
-        if ($stdphoto == "avatar.jpg") {
-            $path = base_url('public/' . $stdphoto);
-        }*/
         $passportUrl = ApplicationHelper::getApplicantPassport();
 
         $paymentData =  $this->transactionhistory($transactionId);

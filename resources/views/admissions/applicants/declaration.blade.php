@@ -155,12 +155,12 @@
                                           <th>Score</th>
                                       </tr>
                                   </thead>
-                                  <tbody>
+                                  <tbody> @php $utmescore=0; @endphp
                                       @for ($i = 0; $i < 4; $i++)
                                           @php
                                           $savedSubject=$jambResults['data'][$i]['subjectName'] ?? '' ;
                                           $savedScore=$jambResults['data'][$i]['jambScore'] ?? '' ;
-                                          $utmescore=0;
+
                                           @endphp
                                           <tr>
                                           <td>{{ $savedSubject }}</td>
@@ -211,34 +211,41 @@
                               <h5 class="card-title mb-0"><strong>CERTIFICATES UPLOADED</strong></h5>
                               <hr>
                               <table class="table table-hover my-0" width="100%" style="font-size:12px">
-                                  <thead>
-                                      <tr>
-                                          <th>DOCUMENT NAME</th>
-                                      </tr>
-                                  </thead>
+
                                   <tbody>
 
-                                      @foreach($certificates->data as $docs)
-                                      <tr>
-                                          <td>{{ $docs['documentName']}}</td>
+
+                                      <tr style="font-size: 14px;">
+                                          <td>{{ implode(', ', array_column($certificates->data, 'documentName')) }}</td>
                                       </tr>
-                                      @endforeach
+
 
                                   </tbody>
                               </table>
                               @endif
 
                               <hr>
-                              <h5 class="card-title mb-0"><strong>DECLARATION/ATTESTATION</strong></h5>
+                              <h5 class="card-title mb-0"><strong>DECLARATION</strong></h5>
                               <hr>
                               <p>
                                   {!! $declaration['data']['declarationtext'] !!}
                               </p>
+
+                              @if (!$applicantStatus['applicationSubmit'])
                               <form action="{{ route('admissions.declaration') }}" method="post">
                                   @csrf
-                                  <button type="submit" class="btn btn-success"> <i class="fas fa-check"></i> Accept Declaration/Attestation</button>
-
+                                  <button type="submit" class="btn btn-success"
+                                      onclick="return confirm('You have accepted the declaration and your application will be submitted.')">
+                                      <i class="fas fa-check"></i> Accept Declaration and Submit Application
+                                  </button>
                               </form>
+                              @else
+                              <div class="alert alert-success alert-dismissible" role="alert">
+                                  <div class="alert-message">
+                                      <strong>Congratulation!</strong> Your Application has been Submitted.
+                                  </div>
+                              </div>
+                              @endif
                           </div>
                       </div>
                   </div>

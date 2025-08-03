@@ -129,7 +129,7 @@ class ApplicationService
     public function refreshApplicantCache(int $userId, string $token): object
     {
         $response = Http::withToken($token)
-            ->get(config('app.url') . '/api/v1/dashboard?include=firstChoiceCourse,programme,stateofOrigin,lga');
+            ->get(config('app.url') . '/api/v1/dashboard?include=firstChoiceCourse,secondChoiceCourse,programme,programmeType,stateofOrigin,lga');
 
         $data = (object) $response->json()['data'];
         Cache::put("dashboard:{$userId}", $data, now()->addHour());
