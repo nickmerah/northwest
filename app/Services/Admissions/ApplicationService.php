@@ -5,28 +5,24 @@ namespace App\Services\Admissions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\Client\PendingRequest;
 
 class ApplicationService
 {
-    public function logout(): array
+    protected function handleRequest(callable $callback, string $errorMessage): array
     {
-        $response = Http::withToken(session('access_token'))->get(
-            config('app.url') . '/api/v1/logout'
-        );
-
         try {
-
+            $response = $callback();
             if ($response->successful()) {
                 return [
                     'success' => true,
-                    'message' => $response['message'],
+                    'message' => $response['message'] ?? 'Request successful.',
                     'data'    => $response->json(),
                 ];
             }
-
             return [
                 'success' => false,
-                'message' => 'unable to logout applicant.',
+                'message' => $errorMessage,
                 'data'    => $response->json(),
             ];
         } catch (\Exception $e) {
@@ -36,47 +32,33 @@ class ApplicationService
                 'data'    => [],
             ];
         }
+    }
+
+    protected function apiUrl(string $path): string
+    {
+        return config('app.url') . "/api/v1/{$path}";
+    }
+
+    protected function withAuth(): PendingRequest
+    {
+        return Http::withToken(session('access_token'))->withHeaders(['Accept' => 'application/json']);
+    }
+
+    public function logout(): array
+    {
+        return $this->handleRequest(fn() => $this->withAuth()->get($this->apiUrl('logout')), 'unable to logout applicant.');
     }
 
     public function states(): array
     {
-        $response = Http::get(
-            config('app.url') . '/api/v1/getstateoforigin'
-        );
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => 'unable to retrieve states of origin.',
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(fn() => Http::get($this->apiUrl('getstateoforigin')), 'unable to retrieve states of origin.');
     }
 
     public function saveprofile(Request $request): array
     {
+        $client = $this->withAuth()->asMultipart();
 
-        $updateWithPassport = $request->input('updatePassport') ?? 0;
-
-        $client = Http::withToken(session('access_token'))->asMultipart()
-            ->withHeaders(['Accept' => 'application/json',]);
-
-        if ($updateWithPassport && $request->hasFile('file')) {
+        if ($request->boolean('updatePassport') && $request->hasFile('file')) {
             $client->attach(
                 'profilePicture',
                 file_get_contents($request->file('file')->getRealPath()),
@@ -84,52 +66,32 @@ class ApplicationService
             );
         }
 
-        $response = $client->post(config('app.url') . '/api/v1/biodata', [
-            'othernames'             => $request->input('othernames'),
-            'gender'                 => $request->input('gender'),
-            'maritalStatus'          => $request->input('marital_status'),
-            'stateofOrigin'          => $request->input('state'),
-            'lga'                    => $request->input('lga'),
-            'birthDate'              => $request->input('yob') . '-' . $request->input('mob') . '-' . $request->input('dob'),
-            'contactAddress'         => $request->input('contact_address'),
-            'studentHomeAddress'     => $request->input('student_homeaddress'),
-            'homeTown'               => $request->input('hometown'),
-            'nextofKin'              => $request->input('nok'),
-            'nextofKinAddress'       => $request->input('nok_address'),
-            'nextofKinEmail'         => $request->input('nok_email'),
-            'nextofKinPhoneNo'       => $request->input('nok_tel'),
-            'nextofKinRelationship'  => $request->input('nok_rel'),
-            'updateWithPassport'     => $updateWithPassport,
-        ]);
+        $payload = [
+            'othernames'            => $request->input('othernames'),
+            'gender'                => $request->input('gender'),
+            'maritalStatus'         => $request->input('marital_status'),
+            'stateofOrigin'         => $request->input('state'),
+            'lga'                   => $request->input('lga'),
+            'birthDate'             => sprintf('%s-%s-%s', $request->input('yob'), $request->input('mob'), $request->input('dob')),
+            'contactAddress'        => $request->input('contact_address'),
+            'studentHomeAddress'    => $request->input('student_homeaddress'),
+            'homeTown'              => $request->input('hometown'),
+            'nextofKin'             => $request->input('nok'),
+            'nextofKinAddress'      => $request->input('nok_address'),
+            'nextofKinEmail'        => $request->input('nok_email'),
+            'nextofKinPhoneNo'      => $request->input('nok_tel'),
+            'nextofKinRelationship' => $request->input('nok_rel'),
+            'updateWithPassport'    => $request->input('updatePassport', 0),
+        ];
 
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => 'Saving of profile failed.',
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(fn() => $client->post($this->apiUrl('biodata'), $payload), 'Saving of profile failed.');
     }
 
     public function refreshApplicantCache(int $userId, string $token): object
     {
-        $response = Http::withToken($token)
-            ->get(config('app.url') . '/api/v1/dashboard?include=firstChoiceCourse,secondChoiceCourse,programme,programmeType,stateofOrigin,lga');
+        $response = Http::withToken($token)->get(
+            $this->apiUrl('dashboard') . '?include=firstChoiceCourse,secondChoiceCourse,programme,programmeType,stateofOrigin,lga'
+        );
 
         $data = (object) $response->json()['data'];
         Cache::put("dashboard:{$userId}", $data, now()->addHour());
@@ -139,452 +101,112 @@ class ApplicationService
 
     public function getOlevelResults(): array
     {
-        $response = Http::withToken(session('access_token'))->get(
-            config('app.url') . '/api/v1/olevels'
-        );
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => "Unable to retrieve applicant's O'level results.",
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(fn() => $this->withAuth()->get($this->apiUrl('olevels')), "Unable to retrieve applicant's O'level results.");
     }
 
     public function getOlevelSubjects(): array
     {
-        $response = Http::get(config('app.url') . '/api/v1/getolevelsubjects');
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => "Unable to retrieve applicant's O'level results.",
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(fn() => Http::get($this->apiUrl('getolevelsubjects')), "Unable to retrieve applicant's O'level subjects.");
     }
 
     public function getOlevelGrades(): array
     {
-        $response = Http::get(config('app.url') . '/api/v1/getolevelgrades');
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => "Unable to retrieve applicant's O'level results.",
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(fn() => Http::get($this->apiUrl('getolevelgrades')), "Unable to retrieve applicant's O'level grades.");
     }
 
     public function saveolevel(Request $request): array
     {
-
-        $first = $request->input('first');
-        $second = $request->input('second');
-
-        $firstSubjects = array_filter($first['subjectName'] ?? [], fn($val) => !empty($val));
-        $firstGrades = array_filter($first['grade'] ?? [], fn($val) => !empty($val));
-
-        $first['subjectName'] = array_values($firstSubjects);
-        $first['grade'] = array_values($firstGrades);
-        $first['sitting'] = "First";
-
-        $payload = [
-            'first' => $first,
+        $formatOlevel = fn($data, $sitting) => [
+            'examName'    => $data['examName'] ?? '',
+            'centerNo'    => $data['centerNo'] ?? '',
+            'examNo'      => $data['examNo'] ?? '',
+            'examMonth'   => $data['examMonth'] ?? '',
+            'examYear'    => $data['examYear'] ?? '',
+            'subjectName' => array_values(array_filter($data['subjectName'] ?? [])),
+            'grade'       => array_values(array_filter($data['grade'] ?? [])),
+            'sitting'     => $sitting,
         ];
 
+        $payload = ['first' => $formatOlevel($request->input('first'), 'First')];
 
-        if (!empty(array_filter($second['subjectName'] ?? [])) && !empty(array_filter($second['grade'] ?? []))) {
-            $secondSubjects = array_filter($second['subjectName'] ?? [], fn($val) => !empty($val));
-            $secondGrades = array_filter($second['grade'] ?? [], fn($val) => !empty($val));
-
-            $second['subjectName'] = array_values($secondSubjects);
-            $second['grade'] = array_values($secondGrades);
-            $second['sitting'] = "Second";
-
-            $payload['second'] = $second;
+        if (
+            !empty(array_filter($request->input('second.subjectName', []))) &&
+            !empty(array_filter($request->input('second.grade', [])))
+        ) {
+            $payload['second'] = $formatOlevel($request->input('second'), 'Second');
         }
 
-        $response =  Http::withToken(session('access_token'))
-            ->withHeaders(['Accept' => 'application/json',])
-            ->post(config('app.url') . '/api/v1/olevels', $payload);
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => 'Saving of Olevel failed.',
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(
+            fn() => $this->withAuth()->post($this->apiUrl('olevels'), $payload),
+            'Saving of Olevel failed.'
+        );
     }
 
     public function getJambResults(): array
     {
-        $response = Http::withToken(session('access_token'))->get(
-            config('app.url') . '/api/v1/jamb'
-        );
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => "Unable to retrieve applicant's Jamb  results.",
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(fn() => $this->withAuth()->get($this->apiUrl('jamb')), "Unable to retrieve applicant's Jamb results.");
     }
 
     public function savejamb(Request $request): array
     {
-        $response = Http::withToken(session('access_token'))->withHeaders([
-            'Accept' => 'application/json',
-        ])->post(config('app.url') . '/api/v1/jamb', [
-            'jambNo'     => $request->input('jambNo'),
+        $payload = [
+            'jambNo'      => $request->input('jambNo'),
             'subjectName' => array_filter($request->input('subjectName', [])),
             'jambScore'   => array_filter($request->input('jambScore', [])),
-        ]);
+        ];
 
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => 'Saving of Jamb results failed.',
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(
+            fn() => $this->withAuth()->post($this->apiUrl('jamb'), $payload),
+            'Saving of Jamb results failed.'
+        );
     }
 
     public function getSchool(): array
     {
-        $response = Http::withToken(session('access_token'))->get(
-            config('app.url') . '/api/v1/schoolattended'
-        );
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => "Unable to retrieve applicant's Jamb  results.",
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(fn() => $this->withAuth()->get($this->apiUrl('schoolattended')), "Unable to retrieve applicant's school details.");
     }
 
     public function saveSchool(Request $request): array
     {
-        $response = Http::withToken(session('access_token'))->withHeaders([
-            'Accept' => 'application/json',
-        ])->post(
-            config('app.url') . '/api/v1/schoolattended',
-            $request->only([
-                'schoolName',
-                'ndMatno',
-                'courseofstudy',
-                'grade',
-                'fromDate',
-                'toDate',
-            ])
+        $payload = $request->only(['schoolName', 'ndMatno', 'courseofstudy', 'grade', 'fromDate', 'toDate']);
+
+        return $this->handleRequest(
+            fn() => $this->withAuth()->post($this->apiUrl('schoolattended'), $payload),
+            'Saving of school details failed.'
         );
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => 'Saving of school details failed.',
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
     }
 
     public function getCertificates(): array
     {
-        $response = Http::withToken(session('access_token'))->get(
-            config('app.url') . '/api/v1/resultupload'
-        );
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => "Unable to retrieve applicant's Certificates.",
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(fn() => $this->withAuth()->get($this->apiUrl('resultupload')), "Unable to retrieve applicant's Certificates.");
     }
 
     public function uploadCertificates(Request $request): array
     {
+        $client = $this->withAuth()->asMultipart();
 
-        $client = Http::withToken(session('access_token'))
-            ->asMultipart()
-            ->withHeaders(['Accept' => 'application/json']);
-
-        $files = [
-            'jamb_result',
-            'o_level_result',
-            'birth_certificate',
-        ];
-
-        foreach ($files as $field) {
+        foreach (['jamb_result', 'o_level_result', 'birth_certificate'] as $field) {
             if ($request->hasFile($field)) {
                 $file = $request->file($field);
-
-                $client->attach(
-                    $field, // API expects the exact field name here
-                    file_get_contents($file->getRealPath()),
-                    $file->getClientOriginalName()
-                );
+                $client->attach($field, file_get_contents($file->getRealPath()), $file->getClientOriginalName());
             }
         }
 
-        $response = $client->post(config('app.url') . '/api/v1/resultupload');
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => 'Certificates Upload failed.',
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(fn() => $client->post($this->apiUrl('resultupload')), 'Certificates Upload failed.');
     }
 
     public function deleteCertificates(): array
     {
-        $response = Http::withToken(session('access_token'))->delete(
-            config('app.url') . '/api/v1/removeresult'
-        );
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => [],
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => "Unable to delete applicant's Certificates.",
-                'data'    => [],
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(fn() => $this->withAuth()->delete($this->apiUrl('removeresult')), "Unable to delete applicant's Certificates.");
     }
 
     public function getDecalaration(): array
     {
-        $response = Http::withToken(session('access_token'))->get(
-            config('app.url') . '/api/v1/declaration'
-        );
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => "Unable to retrieve applicant's Certificates.",
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(fn() => $this->withAuth()->get($this->apiUrl('declaration')), "Unable to retrieve applicant's declaration.");
     }
 
     public function saveDecalaration(): array
     {
-
-        $response = Http::withToken(session('access_token'))->withHeaders([
-            'Accept' => 'application/json',
-        ])->post(
-            config('app.url') . '/api/v1/declaration'
-        );
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => 'Certificates Upload failed.',
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(fn() => $this->withAuth()->post($this->apiUrl('declaration')), 'Saving declaration failed.');
     }
 }

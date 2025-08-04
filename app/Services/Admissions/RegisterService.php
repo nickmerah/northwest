@@ -7,6 +7,43 @@ use Illuminate\Support\Facades\Http;
 
 class RegisterService
 {
+    protected function handleRequest(callable $callback, string $errorMessage): array
+    {
+        try {
+            $response = $callback();
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'message' => $response['message'] ?? 'Request successful.',
+                    'data'    => $response->json(),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $errorMessage,
+                'data'    => $response->json(),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'data'    => [],
+            ];
+        }
+    }
+
+    protected function apiUrl(string $path): string
+    {
+        return config('app.url') . "/api/v1/{$path}";
+    }
+
+    protected function withJson(): \Illuminate\Http\Client\PendingRequest
+    {
+        return Http::withHeaders(['Accept' => 'application/json']);
+    }
+
     public function register(Request $request): array
     {
         $expected = (int) $request->input('first_number') + (int) $request->input('second_number');
@@ -25,108 +62,45 @@ class RegisterService
             ];
         }
 
-
-        $response = Http::withHeaders([
-            'Accept' => 'application/json',
-        ])->post(config('app.url') . '/api/v1/register', [
-            'surname'     => $request->input('surname'),
-            'firstname'   => $request->input('firstname'),
-            'othernames'  => $request->input('othernames'),
-            'progtype'    => $request->input('progtype'),
-            'prog'        => $request->input('prog'),
-            'cos_id'      => $request->input('cos_id'),
-            'cos_id_two'  => $request->input('cos_id_two'),
-            'password'    => $request->input('password'),
-            'email'       => $request->input('email'),
-            'phoneno'     => $request->input('phoneno'),
+        $payload = $request->only([
+            'surname',
+            'firstname',
+            'othernames',
+            'progtype',
+            'prog',
+            'cos_id',
+            'cos_id_two',
+            'password',
+            'email',
+            'phoneno'
         ]);
 
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => 'Registration failed.',
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(
+            fn() => $this->withJson()->post($this->apiUrl('register'), $payload),
+            'Registration failed.'
+        );
     }
 
     public function resetPassword(Request $request): array
     {
-        $response = Http::withHeaders([
-            'Accept' => 'application/json',
-        ])->post(config('app.url') . '/api/v1/forgotpassword', [
-            'applicationNo'     => $request->input('regno'),
-        ]);
+        $payload = ['applicationNo' => $request->input('regno')];
 
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => 'Reset Password failed.',
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(
+            fn() => $this->withJson()->post($this->apiUrl('forgotpassword'), $payload),
+            'Reset Password failed.'
+        );
     }
 
     public function login(Request $request): array
     {
-        $response = Http::withHeaders([
-            'Accept' => 'application/json',
-        ])->post(config('app.url') . '/api/v1/login', [
-            'applicationNo'     => $request->input('regno'),
-            'password'     => $request->input('passkey'),
-        ]);
+        $payload = [
+            'applicationNo' => $request->input('regno'),
+            'password'      => $request->input('passkey'),
+        ];
 
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => $response['message'],
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
+        return $this->handleRequest(
+            fn() => $this->withJson()->post($this->apiUrl('login'), $payload),
+            'Login failed.'
+        );
     }
 }

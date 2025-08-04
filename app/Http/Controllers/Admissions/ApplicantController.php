@@ -9,184 +9,167 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
 use App\Services\Admissions\ApplicationService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller as BaseController;
 
 
 class ApplicantController extends BaseController
 {
-    protected $applicationService;
-
-    public function __construct(ApplicationService $applicationService)
-    {
-        $this->applicationService = $applicationService;
-    }
+    public function __construct(protected ApplicationService $applicationService) {}
 
     public function applicationhome(): View
     {
         $data = ApplicationHelper::getApplicanData();
-        $applicantPayments = $data->applicationPaymentStatus;
-        $applicantStatus = $data->stats;
-        $applicantProgramme = $data->user['programme']['programme_id'];
-        $applicantProgrammeType = $data->user['programmeType'];
 
-        return view(
-            'admissions.applicants.applicationhome',
-            compact('applicantPayments', 'applicantStatus', 'applicantProgramme', 'applicantProgrammeType')
-        );
+        return view('admissions.applicants.applicationhome', [
+            'applicantPayments' => $data->applicationPaymentStatus,
+            'applicantStatus'   => $data->stats,
+            'applicantProgramme' => $data->user['programme']['programme_id'],
+            'applicantProgrammeType' => $data->user['programmeType'],
+        ]);
     }
 
     public function biodata(): View
     {
         $data = ApplicationHelper::getApplicanData();
-        $applicantPayments = $data->applicationPaymentStatus;
-        $applicantStatus = $data->stats;
-        $biodetail = (object) $data->user;
-        $states = (object) $this->applicationService->states()['data']['data'];
 
-        return view(
-            'admissions.applicants.profile',
-            compact('biodetail', 'applicantPayments', 'states', 'applicantStatus')
-        );
+        return view('admissions.applicants.profile', [
+            'biodetail'         => (object) $data->user,
+            'applicantPayments' => $data->applicationPaymentStatus,
+            'applicantStatus'   => $data->stats,
+            'states'            => (object) $this->applicationService->states()['data']['data'],
+        ]);
     }
 
-    public function savebiodata(Request $request)
+    public function savebiodata(Request $request): RedirectResponse
     {
-        $response = $this->applicationService->saveprofile($request);
-
-        if ($response['success']) {
-
-            $this->applicationService->refreshApplicantCache(session('user')['id'], session('access_token'));
-
-            return redirect()->route('admissions.biodata')->with('success', $response['message']);
-        }
-        return redirect()->route('admissions.biodata')->with('error', 'Unable to update profile, try Again!');
+        return $this->handleSave(
+            fn() => $this->applicationService->saveprofile($request),
+            'admissions.biodata',
+            'Unable to update profile, try Again!'
+        );
     }
 
     public function olevel(): View
     {
-        $olevelResults = (object) $this->applicationService->getOlevelResults()['data'];
-        $olevelSubjects =   $this->applicationService->getOlevelSubjects()['data'];
-        $olevelGrades =   $this->applicationService->getOlevelGrades();
+        $data = ApplicationHelper::getApplicanData();
 
-        return view(
-            'admissions.applicants.olevel',
-            compact('olevelResults', 'olevelSubjects', 'olevelGrades')
-        );
+        return view('admissions.applicants.olevel', [
+            'applicantStatus' => $data->stats,
+            'olevelResults'   => (object) $this->applicationService->getOlevelResults()['data'],
+            'olevelSubjects'  => $this->applicationService->getOlevelSubjects()['data'],
+            'olevelGrades'    => $this->applicationService->getOlevelGrades(),
+        ]);
     }
 
-    public function saveolevel(Request $request)
+    public function saveolevel(Request $request): RedirectResponse
     {
-        $response = $this->applicationService->saveolevel($request);
-
-        if ($response['success']) {
-
-            $this->applicationService->refreshApplicantCache(session('user')['id'], session('access_token'));
-
-            return redirect()->route('admissions.olevel')->with('success', $response['message']);
-        }
-        return redirect()->route('admissions.olevel')->with('error', 'Unable to add  olevel results, try Again!');
+        return $this->handleSave(
+            fn() => $this->applicationService->saveolevel($request),
+            'admissions.olevel',
+            'Unable to add olevel results, try Again!'
+        );
     }
 
     public function jamb(): View
     {
-        $jambResults =  $this->applicationService->getJambResults()['data'];
-        $olevelSubjects =  $this->applicationService->getOlevelSubjects()['data'];
+        $data = ApplicationHelper::getApplicanData();
 
-        return view(
-            'admissions.applicants.jamb',
-            compact('jambResults', 'olevelSubjects')
-        );
+        return view('admissions.applicants.jamb', [
+            'applicantStatus' => $data->stats,
+            'jambResults'     => $this->applicationService->getJambResults()['data'],
+            'olevelSubjects'  => $this->applicationService->getOlevelSubjects()['data'],
+        ]);
     }
 
-    public function savejamb(Request $request)
+    public function savejamb(Request $request): RedirectResponse
     {
-        $response = $this->applicationService->savejamb($request);
-
-        if ($response['success']) {
-
-            $this->applicationService->refreshApplicantCache(session('user')['id'], session('access_token'));
-
-            return redirect()->route('admissions.jamb')->with('success', $response['message']);
-        }
-        return redirect()->route('admissions.jamb')->with('error', 'Unable to add  jamb results, try Again!');
+        return $this->handleSave(
+            fn() => $this->applicationService->savejamb($request),
+            'admissions.jamb',
+            'Unable to add jamb results, try Again!'
+        );
     }
 
     public function school(): View
     {
-        $schoolDetails =  $this->applicationService->getSchool()['data'];
+        $data = ApplicationHelper::getApplicanData();
 
-        return view('admissions.applicants.schoolattended', compact('schoolDetails'));
+        return view('admissions.applicants.schoolattended', [
+            'schoolDetails'   => $this->applicationService->getSchool()['data'],
+            'applicantStatus' => $data->stats,
+        ]);
     }
 
-    public function saveschool(Request $request)
+    public function saveschool(Request $request): RedirectResponse
     {
-        $response = $this->applicationService->saveSchool($request);
-
-        if ($response['success']) {
-
-            $this->applicationService->refreshApplicantCache(session('user')['id'], session('access_token'));
-
-            return redirect()->route('admissions.school')->with('success', $response['message']);
-        }
-        return redirect()->route('admissions.school')->with('error', 'Unable to add  school details, try Again!');
+        return $this->handleSave(
+            fn() => $this->applicationService->saveSchool($request),
+            'admissions.school',
+            'Unable to add school details, try Again!'
+        );
     }
 
     public function certupload(): View
     {
-        $certificates =  (object) $this->applicationService->getCertificates()['data'];
+        $data = ApplicationHelper::getApplicanData();
 
-        return view('admissions.applicants.uploadcertificate', compact('certificates'));
+        return view('admissions.applicants.uploadcertificate', [
+            'certificates'    => (object) $this->applicationService->getCertificates()['data'],
+            'applicantStatus' => $data->stats,
+        ]);
     }
 
-    public function savecertupload(Request $request)
+    public function savecertupload(Request $request): RedirectResponse
     {
-        $response = $this->applicationService->uploadCertificates($request);
-
-        if ($response['success']) {
-
-            $this->applicationService->refreshApplicantCache(session('user')['id'], session('access_token'));
-
-            return redirect()->route('admissions.certupload')->with('success', $response['message']);
-        }
-        return redirect()->route('admissions.certupload')->with('error', 'Unable to upload certificates, try Again!');
+        return $this->handleSave(
+            fn() => $this->applicationService->uploadCertificates($request),
+            'admissions.certupload',
+            'Unable to upload certificates, try Again!'
+        );
     }
 
-    public function deletecertupload()
+    public function deletecertupload(): RedirectResponse
     {
         $response = $this->applicationService->deleteCertificates();
 
         if ($response['success']) {
-
-            $this->applicationService->refreshApplicantCache(session('user')['id'], session('access_token'));
+            $this->refreshCache();
         }
+
         return redirect()->route('admissions.certupload');
     }
 
-    public function declares(): View
+    public function declares(): View|RedirectResponse
     {
         $data = $this->getApplicantFormData();
+
+        if (!($data['applicantStatus']['biodata']
+            && $data['applicantStatus']['olevels']
+            && $data['applicantStatus']['jambResult']
+            && $data['applicantStatus']['schoolattended'])) {
+            return redirect()->route('admissions.myapplication');
+        }
+
         return view('admissions.applicants.declaration', $data);
     }
 
-    public function savedeclares()
+    public function savedeclares(): RedirectResponse
     {
-        $response = $this->applicationService->saveDecalaration();
-
-        if ($response['success']) {
-
-            $this->applicationService->refreshApplicantCache(session('user')['id'], session('access_token'));
-
-            return redirect()->route('admissions.myapplication')->with('success', $response['message']);
-        }
-        return redirect()->route('admissions.myapplication')->with('error', 'Unable to save declaration, try Again!');
+        return $this->handleSave(
+            fn() => $this->applicationService->saveDecalaration(),
+            'admissions.myapplication',
+            'Unable to save declaration, try Again!'
+        );
     }
 
     public function applicationforms(): View
     {
         $data = ApplicationHelper::getApplicanData();
-        $applicantStatus = $data->stats;
 
-        return view('admissions.applicants.applicationforms', compact('applicantStatus'));
+        return view('admissions.applicants.applicationforms', [
+            'applicantStatus' => $data->stats
+        ]);
     }
 
     public function applicationform(): View
@@ -205,11 +188,10 @@ class ApplicantController extends BaseController
         return view('admissions.applicants.applicationcard', $data);
     }
 
-    public function logout()
+    public function logout(): RedirectResponse
     {
         if (session()->has('user')) {
-            $userId = session('user')['id'];
-            Cache::forget("dashboard:$userId");
+            Cache::forget("dashboard:" . session('user')['id']);
         }
 
         Session::flush();
@@ -223,13 +205,30 @@ class ApplicantController extends BaseController
         $data = ApplicationHelper::getApplicanData();
 
         return [
-            'biodetail'     => (object) $data->user,
-            'olevelResults' => (object) $this->applicationService->getOlevelResults()['data'],
-            'jambResults'   => $this->applicationService->getJambResults()['data'],
-            'schoolDetails' => $this->applicationService->getSchool()['data'],
-            'certificates'  => (object) $this->applicationService->getCertificates()['data'],
-            'declaration'   => $this->applicationService->getDecalaration()['data'],
+            'biodetail'       => (object) $data->user,
+            'olevelResults'   => (object) $this->applicationService->getOlevelResults()['data'],
+            'jambResults'     => $this->applicationService->getJambResults()['data'],
+            'schoolDetails'   => $this->applicationService->getSchool()['data'],
+            'certificates'    => (object) $this->applicationService->getCertificates()['data'],
+            'declaration'     => $this->applicationService->getDecalaration()['data'],
             'applicantStatus' => $data->stats,
         ];
+    }
+
+    private function handleSave(callable $action, string $route, string $failMessage): RedirectResponse
+    {
+        $response = $action();
+
+        if ($response['success']) {
+            $this->refreshCache();
+            return redirect()->route($route)->with('success', $response['message']);
+        }
+
+        return redirect()->route($route)->with('error', $failMessage);
+    }
+
+    private function refreshCache(): void
+    {
+        $this->applicationService->refreshApplicantCache(session('user')['id'], session('access_token'));
     }
 }

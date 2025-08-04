@@ -47,7 +47,6 @@ class PaymentController extends Controller
 
     public function paymentresponse(Request $request)
     {
-        // Retrieve query parameters for paystack
         $trxref = $request->input('trxref');
 
         $referenceMap = [
@@ -77,7 +76,6 @@ class PaymentController extends Controller
             return new RedirectResponse(url()->previous());
         }
 
-        // Success, redirection
         return new RedirectResponse($updatetransaction['data']['redirectUrl']);
     }
 

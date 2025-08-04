@@ -34,7 +34,7 @@
                                                   <label class="form-label" for="jambno"><strong>UTME No</strong></label>
                                                   <input name="jambNo" type="text" class="form-control" id="jambno"
                                                       value="{{ $jambResults['data'][0]['jambNo'] ?? '' }}"
-                                                      autocomplete="off" required placeholder="Enter UTME No">
+                                                      autocomplete="off" required placeholder="Enter UTME No" minlength="14" maxlength="14">
                                               </div>
 
                                               <div class="col-lg-12">
@@ -65,15 +65,23 @@
                                           </div>
                                           @endfor
                                   </div>
-                                  <br>
+                                  <br> @if ($applicantStatus['olevels'] == 1 )
                                   <button class="btn btn-success"><i class="fas fa-check"></i> Save UTME Results</button>
+                                  @else
+                                  <div class="alert alert-danger alert-dismissible" role="alert">
+                                      <div class="alert-message">
+                                          <strong>OLEVEL RESULTS </strong> NOT YET SAVED.
+                                      </div>
+                                  </div>
+                                  @endif
+
                                   </form>
 
 
                               </div>
                           </div>
 
-                          @if (!empty($jambResults))
+                          @if (!empty($jambResults['data']))
                           <a href="{{ route('admissions.school') }}" class="btn btn-info">
                               <i class="fas fa-info"></i> Click here to Save and Continue
                           </a>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-    <title>{{ $SCHOOLNAME ?? 'DPSG' }} - Application Portal</title>
+    <title>{{ $SCHOOLNAME   }} - Application Portal</title>
     <!-- General CSS Files -->
     <link rel="stylesheet" href="{{ asset('public/assets/css/app.min.css') }}">
     <!-- Template CSS -->

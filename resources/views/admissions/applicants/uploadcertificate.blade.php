@@ -48,7 +48,7 @@
                                       <tr>
                                           <td>{{ $docs['documentName']}}</td>
                                           <td>
-                                              <a href="{{ Storage::disk('public')->url('documents/' . $docs['uploadName']) }}" target="_blank">
+                                              <a href="{{ Storage::disk('public')->url('app/public/documents/' . $docs['uploadName']) }}" target="_blank">
                                                   View Document
                                               </a>
                                           </td>
@@ -92,8 +92,15 @@
                                           <input name="birth_certificate" type="file" class="form-control" required accept=".pdf">
                                       </div>
                                   </div>
-
+                                  @if ($applicantStatus['schoolattended'] == 1 )
                                   <button type="submit" class="btn btn-primary">Upload Documents</button>
+                                  @else
+                                  <div class="alert alert-danger alert-dismissible" role="alert">
+                                      <div class="alert-message">
+                                          <strong>SCHOOL ATTENDED </strong> NOT YET SAVED.
+                                      </div>
+                                  </div>
+                                  @endif
                               </form>
                               @endif
                           </div>

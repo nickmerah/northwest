@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admissions\Api\v1;
 
 use App\Http\Requests\Jamb;
-use App\Helpers\ApiResponse;
 use App\Http\Requests\Olevel;
 use App\Services\ResultsService;
 use App\Http\Requests\Certificate;

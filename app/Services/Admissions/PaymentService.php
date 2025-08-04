@@ -6,105 +6,72 @@ use Illuminate\Support\Facades\Http;
 
 class PaymentService
 {
+    protected function handleRequest(callable $callback, string $errorMessage): array
+    {
+        try {
+            $response = $callback();
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'message' => $response['message'] ?? 'Request successful.',
+                    'data'    => $response->json(),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $errorMessage,
+                'data'    => $response->json(),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'data'    => [],
+            ];
+        }
+    }
+
+    protected function withAuth(): \Illuminate\Http\Client\PendingRequest
+    {
+        return Http::withToken(session('access_token'))->withHeaders(['Accept' => 'application/json']);
+    }
+
+    protected function apiUrl(string $path): string
+    {
+        return config('app.url') . "/api/v1/{$path}";
+    }
+
     public function makePayment(int $feeId): array
     {
+        $payload = [
+            'gateway'     => 'PayStack',
+            'feeType'     => $feeId,
+            'redirectUrl' => 'https://localhost/northwest/admissions/dashboard',
+        ];
 
-        $response = Http::withToken(session('access_token'))->post(
-            config('app.url') . '/api/v1/makepayment',
-            [
-                'gateway'     => 'PayStack',
-                'feeType'   => $feeId,
-                'redirectUrl' => 'https://localhost/northwest/admissions/dashboard',
-            ]
+        return $this->handleRequest(
+            fn() => $this->withAuth()->post($this->apiUrl('makepayment'), $payload),
+            'unable to process payment.'
         );
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => 'unable to process payment.',
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
     }
 
-    public function verifyPayment()
+    public function verifyPayment(): array
     {
-        $response = Http::withToken(session('access_token'))->post(
-            config('app.url') . '/api/v1/verifypayment',
-            [
-                'gateway'     => 'PayStack',
-            ]
+        $payload = ['gateway' => 'PayStack'];
+
+        return $this->handleRequest(
+            fn() => $this->withAuth()->post($this->apiUrl('verifypayment'), $payload),
+            'unable to verify payment.'
         );
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => 'unable to verify payment.',
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
     }
 
-    public function getPaymentHistory()
+    public function getPaymentHistory(): array
     {
-        $response = Http::withToken(session('access_token'))->get(
-            config('app.url') . '/api/v1/paymenthistory',
-            [
-                'gateway'     => 'PayStack',
-            ]
+        return $this->handleRequest(
+            fn() => $this->withAuth()->get($this->apiUrl('paymenthistory'), ['gateway' => 'PayStack']),
+            'Unable to retrieve payment records.'
         );
-
-        try {
-
-            if ($response->successful()) {
-                return [
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data'    => $response->json(),
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => 'Unable to retrieve payment records.',
-                'data'    => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
-                'data'    => [],
-            ];
-        }
     }
 }

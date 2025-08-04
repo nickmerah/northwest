@@ -81,17 +81,24 @@
                                               @endfor
                                           </select>
                                       </div>
-
+                                      @if ($applicantStatus['jambResult'] == 1 )
                                       <div class="mb-3 col-md-12">
                                           <button class="btn btn-success"><i class="fas fa-check"></i> Save School Details</button>
                                       </div>
+                                      @else
+                                      <div class="alert alert-danger alert-dismissible" role="alert">
+                                          <div class="alert-message">
+                                              <strong>JAMB RESULTS </strong> NOT YET SAVED.
+                                          </div>
+                                      </div>
+                                      @endif
                                   </div>
                               </form>
 
                               <br />
 
                           </div>
-                      </div> @if (!empty($schoolDetails))
+                      </div> @if (!empty($schoolDetails['data']))
                       <a href="{{ route('admissions.certupload') }}" class="btn btn-info">
                           <i class="fas fa-info"></i> Click here to Save and Continue
                       </a>

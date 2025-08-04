@@ -42,7 +42,9 @@ class PaymentsController extends BaseController
     {
         $this->paymentService->verifyPayment();
 
-        return $this->transactionhistory();
+        return redirect()->route('admissions.dashboard');
+
+        //return $this->transactionhistory();
     }
 
     public function transactionhistory(?int $transactionId = null): View|array
@@ -76,7 +78,8 @@ class PaymentsController extends BaseController
 
     private function getApplicantData(int $feeId): ?object
     {
-        $data = Cache::get("dashboard:{session('user')['id']}");
+        $userId = session('user')['id'];
+        $data = Cache::get("dashboard:{$userId}");
 
         if ($data && isset($data->applicationFee)) {
             $data->applicationFee = array_values(array_filter($data->applicationFee, function ($fee) use ($feeId) {

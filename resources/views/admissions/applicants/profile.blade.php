@@ -165,7 +165,7 @@
                                               })
                                               .catch(error => console.error('Error fetching LGAs:', error));
                                       } else {
-                                          lgaSelect.innerHTML = '<option value="">Select LGA</option>';
+                                          lgaSelect.innerHTML = '<option value="">Select State of Origin</option>';
                                       }
                                   });
                               </script>

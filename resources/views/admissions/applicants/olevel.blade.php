@@ -26,7 +26,7 @@
                                       <hr>
                                       <form id="update_profile" name="update_profile" action="{{ route('admissions.olevel') }}" method="post">
                                           @csrf
-                                          @if (empty($olevelResults))
+                                          @if (empty($olevelResults->data))
                                           <div class="row">
                                               <div class="col-12 col-md-6 col-lg-6">
                                                   <div class="card">
@@ -197,8 +197,15 @@
                                               </div>
                                           </div>
                                   </div>
+                                  @if ($applicantStatus['biodata'] == 1 )
                                   <button class="btn btn-success"><i class="fas fa-check"></i> Save O'Level Results</button>
-                                  <input name="noos" type="hidden" value="1" />
+                                  @else
+                                  <div class="alert alert-danger alert-dismissible" role="alert">
+                                      <div class="alert-message">
+                                          <strong>BIODATA </strong> NOT YET SAVED.
+                                      </div>
+                                  </div>
+                                  @endif
                               </div>
                               @else
                               <table class="table table-hover my-0" style="font-size:12px">
@@ -229,10 +236,10 @@
                               </table>
                               <br />
 
-
+                              @if ($applicantStatus['olevels'] == 1 )
                               <a href="{{ route('admissions.jamb') }}" class="btn btn-info">
                                   <i class="fas fa-info"></i> Click here to Continue
                               </a>
                               @endif
-
+                              @endif
                               @endsection

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admissions\Api\v1;
 
-use App\Helpers\ApiResponse;
 use App\Http\Requests\Profile;
 use App\Services\BiodataService;
 use App\Http\Controllers\Controller;
