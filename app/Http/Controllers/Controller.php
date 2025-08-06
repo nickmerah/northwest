@@ -15,7 +15,7 @@ use Illuminate\Routing\Controller as BaseController;
 
 class Controller extends BaseController
 {
-    public const SCHOOLNAME = 'Delta State Polytechnic, Ogwashi-Uku';
+    public const SCHOOLNAME = 'NorthWest College of Nursing Sciences, Katsina';
 
     public function dashboard()
     {

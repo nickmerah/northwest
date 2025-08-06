@@ -298,7 +298,7 @@ class PortalPaymentController extends Controller
         $postFields["lineItems"] = [
             [
                 "lineItemsId" => 'SERVICE_CHARGE',
-                "beneficiaryName" => "DELTA STATE POLYTECHNIC",
+                "beneficiaryName" => "STATE POLYTECHNIC",
                 "beneficiaryAccount" => $this->sterling_bank_main,
                 "bankCode" => "232",
                 "beneficiaryAmount" => $calculation['serviceCharge'],
@@ -613,7 +613,7 @@ class PortalPaymentController extends Controller
                 "lineItems" => [
                     [
                         "lineItemsId" => 'SUG',
-                        "beneficiaryName" => "STUDENTS UNION GOVERNMENT DSPG",
+                        "beneficiaryName" => "STUDENTS UNION GOVERNMENT",
                         "beneficiaryAccount" => $this->zenith_bank_SUG,
                         "bankCode" => "057",
                         "beneficiaryAmount" => $sugAmount->amount,
@@ -621,7 +621,7 @@ class PortalPaymentController extends Controller
                     ],
                     [
                         "lineItemsId" => 'NADESSU',
-                        "beneficiaryName" => "NATIONAL ASSOC OF DELTA STATE STUDENTS",
+                        "beneficiaryName" => "NATIONAL ASSOC OF STATE STUDENTS",
                         "beneficiaryAccount" => $this->union_bank_NADESSTU,
                         "bankCode" => "032",
                         "beneficiaryAmount" => $nadessuAmount->amount,
@@ -629,7 +629,7 @@ class PortalPaymentController extends Controller
                     ],
                     [
                         "lineItemsId" => 'NIPOGA',
-                        "beneficiaryName" => "DSPG NIPOGA 2025",
+                        "beneficiaryName" => "NIPOGA 2025",
                         "beneficiaryAccount" => $this->premium_trust_bank_NIPOGA,
                         "bankCode" => "105",
                         "beneficiaryAmount" => $nipogaAmount->amount,
@@ -637,7 +637,7 @@ class PortalPaymentController extends Controller
                     ],
                     [
                         "lineItemsId" => 'PORTAL_CHARGES',
-                        "beneficiaryName" => "DELTA STATE POLYTECHNIC O/UKU",
+                        "beneficiaryName" => "STATE POLYTECHNIC",
                         "beneficiaryAccount" => $this->first_bank_main,
                         "bankCode" => "011",
                         "beneficiaryAmount" => $serviceChargeAmount->amount,
@@ -694,7 +694,7 @@ class PortalPaymentController extends Controller
                 $postFields["lineItems"] = [
                     [
                         "lineItemsId" => 'SCHOOL_FEES',
-                        "beneficiaryName" => "DELTA STATE POLYTECHNIC O/UKU",
+                        "beneficiaryName" => "STATE POLYTECHNIC",
                         "beneficiaryAccount" => $this->first_bank_main,
                         "bankCode" => "011",
                         "beneficiaryAmount" => $school_share,
@@ -778,7 +778,7 @@ class PortalPaymentController extends Controller
             $postFields["lineItems"] = [
                 [
                     "lineItemsId" => 'SCHOOL_FEES',
-                    "beneficiaryName" => "DELTA STATE POLYTECHNIC O/UKU",
+                    "beneficiaryName" => "STATE POLYTECHNIC",
                     "beneficiaryAccount" => $this->first_bank_main,
                     "bankCode" => "011",
                     "beneficiaryAmount" => $school_share,
@@ -1004,7 +1004,7 @@ class PortalPaymentController extends Controller
                 "lineItems" => [
                     [
                         "lineItemsId" => 'SUG',
-                        "beneficiaryName" => "STUDENTS UNION GOVERNMENT DSPG",
+                        "beneficiaryName" => "STUDENTS UNION GOVERNMENT",
                         "beneficiaryAccount" => $this->zenith_bank_SUG,
                         "bankCode" => "057",
                         "beneficiaryAmount" => $sugAmount->amount,
@@ -1012,7 +1012,7 @@ class PortalPaymentController extends Controller
                     ],
                     [
                         "lineItemsId" => 'NADESSU',
-                        "beneficiaryName" => "NATIONAL ASSOC OF DELTA STATE STUDENTS",
+                        "beneficiaryName" => "NATIONAL ASSOC OF STATE STUDENTS",
                         "beneficiaryAccount" => $this->union_bank_NADESSTU,
                         "bankCode" => "032",
                         "beneficiaryAmount" => $nadessuAmount->amount,
@@ -1020,7 +1020,7 @@ class PortalPaymentController extends Controller
                     ],
                     [
                         "lineItemsId" => 'NIPOGA',
-                        "beneficiaryName" => "DSPG NIPOGA 2025",
+                        "beneficiaryName" => "NIPOGA 2025",
                         "beneficiaryAccount" => $this->premium_trust_bank_NIPOGA,
                         "bankCode" => "105",
                         "beneficiaryAmount" => $nipogaAmount->amount,
@@ -1028,7 +1028,7 @@ class PortalPaymentController extends Controller
                     ],
                     [
                         "lineItemsId" => 'PORTAL_CHARGES',
-                        "beneficiaryName" => "DELTA STATE POLYTECHNIC O/UKU",
+                        "beneficiaryName" => "STATE POLYTECHNIC",
                         "beneficiaryAccount" => $this->first_bank_main,
                         "bankCode" => "011",
                         "beneficiaryAmount" => $serviceChargeAmount->amount,
@@ -1084,7 +1084,7 @@ class PortalPaymentController extends Controller
                 $postFields["lineItems"] = [
                     [
                         "lineItemsId" => 'SCHOOL_FEES',
-                        "beneficiaryName" => "DELTA STATE POLYTECHNIC O/UKU",
+                        "beneficiaryName" => "STATE POLYTECHNIC",
                         "beneficiaryAccount" => $this->first_bank_main,
                         "bankCode" => "011",
                         "beneficiaryAmount" => $school_share,
@@ -1199,7 +1199,7 @@ class PortalPaymentController extends Controller
                 "lineItems" => [
                     [
                         "lineItemsId" => 'SUG',
-                        "beneficiaryName" => "STUDENTS UNION GOVERNMENT DSPG",
+                        "beneficiaryName" => "STUDENTS UNION GOVERNMENT",
                         "beneficiaryAccount" => $this->zenith_bank_SUG,
                         "bankCode" => "057",
                         "beneficiaryAmount" => $sugAmount->amount,
@@ -1207,7 +1207,7 @@ class PortalPaymentController extends Controller
                     ],
                     [
                         "lineItemsId" => 'NADESSU',
-                        "beneficiaryName" => "NATIONAL ASSOC OF DELTA STATE STUDENTS",
+                        "beneficiaryName" => "NATIONAL ASSOC OF STATE STUDENTS",
                         "beneficiaryAccount" => $this->union_bank_NADESSTU,
                         "bankCode" => "032",
                         "beneficiaryAmount" => $nadessuAmount->amount,
@@ -1215,7 +1215,7 @@ class PortalPaymentController extends Controller
                     ],
                     [
                         "lineItemsId" => 'SPORTS DEVELOPMENT',
-                        "beneficiaryName" => "DSPG NIPOGA 2025",
+                        "beneficiaryName" => "NIPOGA 2025",
                         "beneficiaryAccount" => $this->premium_trust_bank_NIPOGA,
                         "bankCode" => "105",
                         "beneficiaryAmount" => $nipogaAmount->amount,
@@ -1223,7 +1223,7 @@ class PortalPaymentController extends Controller
                     ],
                     [
                         "lineItemsId" => 'PORTAL_CHARGES',
-                        "beneficiaryName" => "DELTA STATE POLYTECHNIC",
+                        "beneficiaryName" => "POLYTECHNIC",
                         "beneficiaryAccount" => $this->sterling_bank_main,
                         "bankCode" => "232",
                         "beneficiaryAmount" => $serviceChargeAmount->amount,
@@ -1299,7 +1299,7 @@ class PortalPaymentController extends Controller
             if ($policy != 0.6) {
                 $postFields["lineItems"][] = [
                     "lineItemsId" => 'OTHERS',
-                    "beneficiaryName" => "DELTA STATE POLYTECHNIC O/UKU",
+                    "beneficiaryName" => "STATE POLYTECHNIC",
                     "beneficiaryAccount" => $this->first_bank_main,
                     "bankCode" => "011",
                     "beneficiaryAmount" => $othersAmount,
@@ -1327,7 +1327,7 @@ class PortalPaymentController extends Controller
                 $postFields["lineItems"] = array_merge($postFields["lineItems"], [
                     [
                         "lineItemsId" => 'SCHOOL_FEES',
-                        "beneficiaryName" => "DELTA STATE POLYTECHNIC",
+                        "beneficiaryName" => "STATE POLYTECHNIC",
                         "beneficiaryAccount" => $this->sterling_bank_main,
                         "bankCode" => "232",
                         "beneficiaryAmount" => $school_share,
@@ -1335,7 +1335,7 @@ class PortalPaymentController extends Controller
                     ],
                     [
                         "lineItemsId" => 'MEDICALS',
-                        "beneficiaryName" => "DELTA STATE POLYTECHNIC OGWASHI-UKU MEDICAL CENTRE",
+                        "beneficiaryName" => "STATE POLYTECHNIC MEDICAL CENTRE",
                         "beneficiaryAccount" => $this->premium_trust_MEDICALS,
                         "bankCode" => "105",
                         "beneficiaryAmount" => $medicalsAmount,

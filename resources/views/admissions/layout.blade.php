@@ -144,7 +144,7 @@
 <body>
     <header>
         <div class="header-content">
-            <img src="https://portal.mydspg.edu.ng/admissions/assets/img/logox.png" alt="College Logo" class="logo">
+            <img src="{{ asset('public/assets/img/logo.png')}}" alt="College Logo" class="logo">
             <h1>{{ $SCHOOLNAME }}</h1>
         </div>
         <nav>

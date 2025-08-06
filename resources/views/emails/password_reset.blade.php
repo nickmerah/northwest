@@ -10,7 +10,7 @@
     <p>You requested to reset your password. Your number Password is</p>
     <b>{{ $resetLink }}</b>
     <p>Additionally, your surname in small letters is still your password.</p>
-    <p>Admin, DSPG</p>
+    <p>Admin, nwcn</p>
 </body>
 
 </html>

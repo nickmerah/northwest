@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Portal Login - {{ $schoolName->schoolname ?? 'DPSG' }}</title>
+    <title>Student Portal Login - {{ $schoolName->schoolname   }}</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -74,15 +74,15 @@
         }
 
         .btn-orange {
-            background-color: darkorange;
-            border-color: orange;
+            background-color: darkblue;
+            border-color: blue;
             color: white;
             font-weight: bold;
         }
 
         .btn-orange:hover {
-            background-color: orange;
-            border-color: darkorange;
+            background-color: blue;
+            border-color: lightblue;
         }
     </style>
 </head>
@@ -92,7 +92,7 @@
         <div class="login-container">
             <div class="login-header"><a href="{{ url('/') }}">
                     <img src="{{ asset('public/images/logo.png') }}" alt="School Logo"> </a>
-                <h4><strong style="color:green">{{ $schoolName->schoolname ?? 'DPSG' }}</strong></h4>
+                <h4><strong style="color:blue">{{ $schoolName->schoolname }}</strong></h4>
                 <h4>
                     <p class="text-muted portal-label">Student Portal</p>
                 </h4>

@@ -23,7 +23,7 @@ use App\Http\Controllers\RemedialPaymentController;
 |
 */
 
-Route::get('/', [SchoolInfoController::class, 'index']);
+Route::get('/', [LoginController::class, 'showLoginForm']);
 Route::get('portallogin', [LoginController::class, 'showLoginForm'])->name('portallogin');
 Route::get('aportallogin', [LoginController::class, 'ashowLoginForm'])->name('aportallogin');
 Route::get('forgotpass', [LoginController::class, 'showForgotPasswordForm'])->name('forgotpass');
@@ -58,19 +58,7 @@ Route::middleware('throttle:5,1')->group(function () {
     Route::post('forgotPassClearance', [LoginController::class, 'forgotpassClearance'])->name('forgotPassClearance');
 });
 
-Route::middleware('checkUserSession')->group(function () {
-    Route::get('/clearanceDashboard', [ClearanceController::class, 'home']);
-    Route::get('/clearanceFees', [ClearanceController::class, 'clearancefees']);
-    Route::get('/clearancePayments', [ClearanceController::class, 'phistory']);
-    Route::get('/viewfeepack/{packid}', [ClearanceController::class, 'viewFeePack'])->name('viewfeepack');
-    Route::get('/paypacknow/{packid}', [PaymentController::class, 'payPackNow'])->name('paypacknow');
-    Route::get('/viewfee/{rrr}', [ClearanceController::class, 'viewFees'])->name('viewfee');
-    Route::get('/processfee/{rrr}', [PaymentController::class, 'processFees'])->name('processfee');
-    Route::get('/remitaresponse', [PaymentController::class, 'remitaresponse'])->name('remitaresponse');
-    Route::get('/checkpayment', [PaymentController::class, 'checkpayment'])->name('checkpayment');
-    Route::get('/phistory', [ClearanceController::class, 'phistory'])->name('phistory');
-    Route::get('/printreceipt/{trans_no}', [ClearanceController::class, 'printReceipt'])->name('printreceipt');
-});
+
 
 Route::middleware('checkLoginUserSession')->group(function () {
     Route::get('/portalDashboard', [PortalController::class, 'home']);
@@ -116,11 +104,25 @@ Route::middleware('checkLoginUserSession')->group(function () {
     Route::post('/removecourse', [PortalController::class, 'removecourses']);
     Route::get('/creghistory', [PortalController::class, 'coursereghistory']);
     Route::get('/printcreg/{sess}', [PortalController::class, 'printCourseReg']);
-    
+
     Route::get('/testrrr', [PortalPaymentController::class, 'testrrr'])->name('testrrr');
 });
 
+/*
 
+Route::middleware('checkUserSession')->group(function () {
+    Route::get('/clearanceDashboard', [ClearanceController::class, 'home']);
+    Route::get('/clearanceFees', [ClearanceController::class, 'clearancefees']);
+    Route::get('/clearancePayments', [ClearanceController::class, 'phistory']);
+    Route::get('/viewfeepack/{packid}', [ClearanceController::class, 'viewFeePack'])->name('viewfeepack');
+    Route::get('/paypacknow/{packid}', [PaymentController::class, 'payPackNow'])->name('paypacknow');
+    Route::get('/viewfee/{rrr}', [ClearanceController::class, 'viewFees'])->name('viewfee');
+    Route::get('/processfee/{rrr}', [PaymentController::class, 'processFees'])->name('processfee');
+    Route::get('/remitaresponse', [PaymentController::class, 'remitaresponse'])->name('remitaresponse');
+    Route::get('/checkpayment', [PaymentController::class, 'checkpayment'])->name('checkpayment');
+    Route::get('/phistory', [ClearanceController::class, 'phistory'])->name('phistory');
+    Route::get('/printreceipt/{trans_no}', [ClearanceController::class, 'printReceipt'])->name('printreceipt');
+});
 Route::get('remediallogin', [LoginController::class, 'showRemedialLoginForm'])->name('remediallogin');
 Route::middleware('checkRemedialUserSession')->group(function () {
     Route::get('/remedialDashboard', [RemedialController::class, 'home']);
@@ -138,17 +140,17 @@ Route::middleware('checkRemedialUserSession')->group(function () {
     Route::get('/printcourses', [RemedialController::class, 'printCourse'])->name('printcourses');
 });
 
-/*Route::get('/clear', function () {
+Route::get('/clear', function () {
     Artisan::call('make:mail TestMail');
     return 'Cache cleared!';
 });
-*/
+
 Route::get('/send-test-email', function () {
     $dmail = "nickmerah@gmail.com";
     $details = [
-        'title' => 'Password Reset Info from DSPG Student Portal',
+        'title' => 'Password Reset Info from Student Portal',
         'body' => "Mail sent",
-        'info' => "Password Reset Info for DSPG Student Portal is as follows:",
+        'info' => "Password Reset Info for Student Portal is as follows:",
         'email' => $dmail,
         'passkey' => "1111",
         'appno' => "TEST111"
@@ -158,4 +160,4 @@ Route::get('/send-test-email', function () {
 
     Mail::to($dmail)->send(new MailNotifier($details));
 });
- 
+*/

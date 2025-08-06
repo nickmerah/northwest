@@ -136,14 +136,14 @@
                         <a class="nav-link" href="{{ url('/') }}">Home</a>
                     </li>
                     <li class="nav-item active">
-                        <a class="nav-link" href="#">Portal</a>
+                        <a class="nav-link" href="{{ url('/portallogin') }}">Login</a>
                     </li>
-                    <li class="nav-item active">
+                    <?php /*   <li class="nav-item active">
                         <a class="nav-link" href="{{ url('/clearancelogin') }}">Clearance</a>
                     </li>
                     <li class="nav-item active">
                         <a class="nav-link" href="{{ url('/remediallogin') }}">Remedial</a>
-                    </li>
+                    </li> */ ?>
                 </ul>
             </div>
         </div>
@@ -156,10 +156,10 @@
     <br>
 
     <!-- Main Content -->
-    <main class="container my-4">
+    <main class="container my-12">
         <div class="row">
             <!-- Student Portal Card -->
-            <div class="col-md-4 col-sm-6 d-flex align-items-stretch mb-4">
+            <div class="col-md-12 col-sm-12 d-flex align-items-stretch mb-12">
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <h3 class="card-title"><strong>Student Portal</strong> </h3>
@@ -170,7 +170,7 @@
             </div>
 
             <!-- Clearance Model Card -->
-            <div class="col-md-4 col-sm-6 d-flex align-items-stretch mb-4">
+            <?php /*    <div class="col-md-4 col-sm-6 d-flex align-items-stretch mb-4">
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <h3 class="card-title"><strong>Final Clearance </strong></h3>
@@ -189,7 +189,7 @@
                         <a href="{{ url('/remediallogin') }}" class="btn btn-orange">Make your Remedial Payments</a>
                     </div>
                 </div>
-            </div>
+            </div> */ ?>
         </div>
     </main>
     <p id="demo" class="application-status text-center"></p>

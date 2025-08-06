@@ -74,15 +74,15 @@
         }
 
         .btn-orange {
-            background-color: darkorange;
-            border-color: orange;
+            background-color: darkblue;
+            border-color: blue;
             color: white;
             font-weight: bold;
         }
 
         .btn-orange:hover {
-            background-color: orange;
-            border-color: darkorange;
+            background-color: blue;
+            border-color: darkblue;
         }
     </style>
 </head>
@@ -92,7 +92,7 @@
         <div class="login-container">
             <div class="login-header"><a href="{{ url('/') }}">
                     <img src="{{ asset('public/images/logo.png') }}" alt="School Logo"> </a>
-                <h4><strong style="color:green">{{ $schoolName->schoolname ?? 'DPSG' }}</strong></h4>
+                <h4><strong style="color:blue">{{ $schoolName->schoolname }}</strong></h4>
                 <h4>
                     <p class="text-muted portal-label">Student Portal</p>
                 </h4>

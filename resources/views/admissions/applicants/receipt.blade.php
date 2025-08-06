@@ -199,7 +199,7 @@
         @foreach($paymentData as $paydetail)
         <div class="content">
             <div align="center"><br>
-                <img src="{{ asset('public/assets/img/logo.png') }}" alt="dspg" width="120" height="131">
+                <img src="{{ asset('public/assets/img/logo.png') }}" alt="logo" width="120" height="131">
                 <br>
                 <h2>{{ strtoupper($SCHOOLNAME) }}</h2>
                 <h3><u>{{ strtoupper($paydetail['feeName']) }} - Payment Receipt</u></h3>

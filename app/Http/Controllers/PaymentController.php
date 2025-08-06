@@ -346,7 +346,7 @@ class PaymentController extends Controller
     {
         return array(
             "lineItemsId" => $lineItemsId,
-            "beneficiaryName" => "Delta State Polytechnic, Ogwashi-Uku",
+            "beneficiaryName" => "State Polytechnic",
             "beneficiaryAccount" => $beneficiaryAccount,
             "bankCode" => $bankCode,
             "beneficiaryAmount" => $beneficiaryAmount,

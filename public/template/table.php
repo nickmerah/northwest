@@ -248,7 +248,7 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p>© DSPG</p>
+            <p>© NWCN</p>
         </div>
     </div>
 

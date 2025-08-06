@@ -34,7 +34,7 @@
 
         .header h1 {
             font-size: 1.75rem;
-            color: green;
+            color: blue;
             margin: 0;
         }
 
@@ -168,15 +168,15 @@
         }
 
         .btn-orange {
-            background-color: darkorange;
-            border-color: orange;
+            background-color: darkblue;
+            border-color: blue;
             color: white;
             font-weight: bold;
         }
 
         .btn-orange:hover {
-            background-color: orange;
-            border-color: darkorange;
+            background-color: blue;
+            border-color: darkblue;
         }
     </style>
 </head>
@@ -186,10 +186,10 @@
         <!-- Header -->
         <div class="header">
             <a href="{{ url('/portalDashboard') }}">
-                <img src="https://portal.mydspg.edu.ng/eportal/public/images/logo-big.png" alt="School Logo">
+                <img src="{{ asset('public/images/nw.jpg') }}" alt="School Logo">
             </a>
             <h1>{{ $schoolName }}</h1>
-            <p class="portal-label">Student Portal</p>
+            <p class=" portal-label">Student Portal</p>
             <p> <strong>{{ $student->surname }}</strong>, {{ $student->firstname }} {{ $student->othernames }} <br>
                 <strong> {{ $student->matric_no }}</strong> <br>
                 {{ $student->programmeType->programmet_aname }} {{ $student->level->level_name }} {{ $student->departmentOption->programme_option }}<br>
