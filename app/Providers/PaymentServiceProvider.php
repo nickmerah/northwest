@@ -15,9 +15,9 @@ class PaymentServiceProvider extends ServiceProvider
                 'subAccount' => env('PAYSTACK_SUBACCOUNT'),
                 'transactionFee' => 500,
                 'accomodation' => 500,
-                'portalFee' => 2000,
-                'callback_url' => "https://portal.bawocons.edu.ng/paymentresponse",
-                'cancel_action_url' => "http://localhost/northwest/admissions/dashboard",
+                'portalFee' => 5000,
+                'callback_url' => "https://eportal.nowecons.edu.ng/paystackresponse",
+                'cancel_action_url' => "https://eportal.nowecons.edu.ng/paystackcancelaction",
             ];
         });
     }

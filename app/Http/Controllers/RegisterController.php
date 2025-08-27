@@ -10,12 +10,11 @@ use App\Models\SchoolInfo;
 use Illuminate\Support\Str;
 use App\Models\StudentLogin;
 use Illuminate\Http\Request;
+use App\Models\StateOfOrigin;
 use App\Models\StudentProfile;
 use App\Models\ClearanceStudents;
 use App\Models\DepartmentOptions;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\File;
 
 class RegisterController extends Controller
 {
@@ -69,58 +68,6 @@ class RegisterController extends Controller
         return response()->json($levels);
     }
 
-    public function clearanceRegister(Request $request)
-    {
-        $validatedData = $request->validate([
-            'surname' => 'required|string|max:150',
-            'firstname' => 'required|string|max:150',
-            'othernames' => 'nullable|string|max:150',
-            'matric_number' => 'required|string|max:50|unique:cprofile,matricno',
-            'year_of_graduation' => 'required|numeric|between:2003,' . date('Y'),
-            'department' => 'required|numeric',
-            'programme' => 'required|numeric',
-            'email' => 'required|email|max:150',
-            'phone' => 'required|numeric',
-            'level' => 'required|numeric',
-            'password' => 'required|string|min:4',
-            'captcha' => 'required|numeric',
-        ]);
-
-        // Validate the captcha answer
-        if ($request->captcha != session('captcha_answer')) {
-            return back()->withErrors(['captcha' => 'Incorrect Maths answer. Please try again.'])->withInput();
-        }
-
-        $sanitizedData = [
-            'surname' => strip_tags($validatedData['surname']),
-            'firstname' => strip_tags($validatedData['firstname']),
-            'othernames' => isset($validatedData['othernames']) ? strip_tags($validatedData['othernames']) : null,
-            'matricno' => strip_tags($validatedData['matric_number']),
-            'graduation_year' => $validatedData['year_of_graduation'],
-            'dept_id' => $validatedData['department'],
-            'prog_id' => $validatedData['programme'],
-            'level_id' => $validatedData['level'],
-            'email' => $validatedData['email'],
-            'phone' => $validatedData['phone'],
-            'password' => strtolower($validatedData['password']),
-            'spassword' => strtolower($validatedData['surname']),
-        ];
-
-        // Capitalize specific fields
-        $sanitizedData['surname'] = strtoupper($sanitizedData['surname']);
-        $sanitizedData['firstname'] = strtoupper($sanitizedData['firstname']);
-        $sanitizedData['othernames'] = isset($sanitizedData['othernames']) ? strtoupper($sanitizedData['othernames']) : null;
-        $sanitizedData['matricno'] = strtoupper($sanitizedData['matricno']);
-        $sanitizedData['email'] = strtolower($sanitizedData['email']);
-        $sanitizedData['phone'] = strtolower($sanitizedData['phone']);
-
-
-        // Create a new student record with sanitized and capitalized data
-        ClearanceStudents::create($sanitizedData);
-
-        return redirect()->route('clearancelogin')->with('success', 'Registration successful. Please log in.');
-    }
-
     // PORTAL
 
     public function LoginVerification(Request $request)
@@ -148,10 +95,14 @@ class RegisterController extends Controller
 
         session(['captcha_answer' => $this->calculateCaptchaAnswer($number1, $number2, $operator)]);
 
+        $sors = StateOfOrigin::all();
+
+
         return view('portalRegister', array_merge(
             compact('student', 'question'),
             [
                 'schoolName' => $this->schoolInfo,
+                'sors' => $sors,
             ]
         ));
     }
@@ -161,6 +112,7 @@ class RegisterController extends Controller
         $validatedData = $request->validate([
             'password' => 'required|string|min:4',
             'captcha' => 'required|numeric',
+            'email' => 'required|email',
         ]);
 
         // Validate the captcha answer
@@ -169,6 +121,9 @@ class RegisterController extends Controller
         }
 
         $matricNo = $request->input('matno');
+        $email = strtolower($request->input('email'));
+        $gsm = $request->input('gsm');
+        $sor = $request->input('sor');
 
         $result = $this->checkMatriculationNumber($matricNo);
 
@@ -176,20 +131,25 @@ class RegisterController extends Controller
             return redirect()->back()->withErrors(['matno' => $result['error']]);
         }
 
-        $student = $result;
+        $student =  isset($result->fname) ? trim($result->fname) : '';
+        $nameParts = explode(" ", $student);
+        // Assign values based on the number of parts
+        $surname = isset($nameParts[0]) ? trim($nameParts[0]) : '';
+        $firstname = isset($nameParts[1]) ? trim($nameParts[1]) : '';
+        $othernames = isset($nameParts[2]) ? trim(implode(" ", array_slice($nameParts, 2))) : '';
 
         //  DB::beginTransaction();
 
         try {
 
             $loginData = [
-                'log_surname' => $student->surname,
-                'log_firstname' => $student->firstname,
-                'log_othernames' => $student->othername,
-                'log_username' => $student->matno,
-                'log_email' => $student->email,
+                'log_surname' => $surname,
+                'log_firstname' => $firstname,
+                'log_othernames' => $othernames,
+                'log_username' => $matricNo,
+                'log_email' => $email,
                 'log_password' => strtolower($validatedData['password']),
-                'log_spassword' => strtolower($student->surname),
+                'log_spassword' => strtolower($surname),
                 'token' => Str::random(60),
                 'token_expires_at' => now()->addHour(),
             ];
@@ -197,52 +157,55 @@ class RegisterController extends Controller
             $login = StudentLogin::create($loginData);
 
             $nullable = '';
-            $deptId = DepartmentOptions::where('do_id', $student->do_id)->value('dept_id') ?? 0;
+            $deptId = DepartmentOptions::where('do_id', $result->do_id)->value('dept_id') ?? 0;
             $facId = Department::where('departments_id', $deptId)->value('fac_id') ?? 0;
 
             $studentData = [
 
                 'std_logid' => $login->log_id,
-                'matric_no' => $student->matno,
-                'surname'  => $student->surname,
-                'firstname' => $student->firstname,
-                'othernames' => $student->othername,
-                'gender' => $student->gender,
+                'matric_no' => $matricNo,
+                'surname'  => $surname,
+                'firstname' => $firstname,
+                'othernames' => $othernames,
+                'gender' => $nullable,
                 'marital_status' => $nullable,
-                'birthdate' => $this->isValidDate($student->birthdate) ? $student->birthdate : null,
+                'birthdate' =>  null,
                 'matset' => $nullable,
-                'local_gov' => $this->isValidInteger($student->lga) ? $student->lga : 0,
-                'state_of_origin' => $this->isValidInteger($student->stateor) ? $student->stateor : 0,
+                'local_gov' => 0,
+                'state_of_origin' => $sor,
                 'religion' => $nullable,
-                'nationality' => $student->nationality ?? $nullable,
+                'nationality' => $nullable,
                 'contact_address' => $nullable,
-                'student_email' => $student->email ?? $nullable,
+                'student_email' => $email,
                 'student_homeaddress' => $nullable,
-                'student_mobiletel' => $student->gsm ?? $nullable,
+                'student_mobiletel' => $gsm ?? $nullable,
                 'std_genotype' => $nullable,
                 'std_bloodgrp' => $nullable,
                 'std_pc' => $nullable,
-                'next_of_kin' => $student->nok ?? $nullable,
-                'nok_address' => $student->nokadd ?? $nullable,
-                'nok_tel' => $student->nokgsm ?? $nullable,
-                'stdprogramme_id' => $student->prog ?? 0,
-                'stdprogrammetype_id' => $student->progtype ?? 0,
+                'next_of_kin' =>  $nullable,
+                'nok_address' =>  $nullable,
+                'nok_tel' => $nullable,
+                'stdprogramme_id' => $result->prog ?? 0,
+                'stdprogrammetype_id' => $result->progtype ?? 0,
                 'stdfaculty_id' => $facId ?? 0,
                 'stddepartment_id' => $deptId ?? 0,
-                'stdcourse' => $student->do_id ?? 0,
-                'stdlevel' => $student->level ?? 0,
-                'std_admyear' => $student->admyear ?? 2023,
-                'std_photo' => $student->stdno . '.jpg',
-                'std_status' => ($student->level == 1 || $student->level == 3) ? 'New' : 'Returning',
-                'student_status' => $student->stdstatus ?? $nullable,
+                'stdcourse' => $result->do_id ?? 0,
+                'stdlevel' => $result->level ?? 0,
+                'std_admyear' => $result->admyear ?? 2024,
+                'std_photo' => 'avatar.jpg',
+                'std_status' => ($result->level == 1) ? 'New' : 'Returning',
+                'student_status' => $nullable,
                 'promote_status' => 0
             ];
 
             StudentProfile::create($studentData);
-
-            // activate the stdaccess account
-            DB::table('stdaccess')->where('matno', $student->matno)->update(['activated' => 1]);
             // DB::commit();
+
+            DB::table('stdaccess')
+                ->where('matno', $matricNo)
+                ->update(['logstatus' => 1]);
+
+
             return redirect()->route('portallogin')->with('success', 'Registration successful. Please log in.');
         } catch (\Exception $e) {
 
@@ -261,30 +224,13 @@ class RegisterController extends Controller
             return ['error' => 'Matriculation number not found.'];
         }
 
-        if ($student->activated == 1) {
-            return ['error' => 'Matriculation number already verified, Login to continue.'];
-        }
-
         $studentProfile = StudentProfile::where('matric_no', $matricNo)->first();
         $studentLogin = StudentLogin::where('log_username', $matricNo)->first();
 
-        if ($studentProfile || $studentLogin) {
+        if ($studentProfile || $studentLogin || $student->logstatus == 1) {
             return ['error' => 'Matriculation number already verified, Login to continue.'];
         }
 
         return $student;
-    }
-
-    private function isValidDate($date, $format = 'Y-m-d')
-    {
-        // Check if the date is empty or not a valid date
-        $d = DateTime::createFromFormat($format, $date);
-        return $d && $d->format($format) === $date;
-    }
-
-    private function isValidInteger($value)
-    {
-        // Check if the value is a valid integer
-        return filter_var($value, FILTER_VALIDATE_INT) !== false;
     }
 }

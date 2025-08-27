@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Portal - {{ $schoolName->schoolname ?? 'DPSG' }}</title>
+    <title>Student Portal - {{ $schoolName->schoolname ?? 'NW' }}</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
@@ -74,6 +74,30 @@
             text-align: center;
             margin-top: 20px;
         }
+
+        .form-control {
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 1em;
+        }
+
+        .form-control:focus {
+            border-color: #00aaff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 170, 255, 0.25);
+        }
+
+        .btn-orange {
+            background-color: darkblue;
+            border-color: blue;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-orange:hover {
+            background-color: blue;
+            border-color: darkblue;
+        }
     </style>
 </head>
 
@@ -84,7 +108,7 @@
                 <a href="{{ url('/') }}">
                     <img src="{{ asset('public/images/logo.png') }}" alt="School Logo">
                 </a>
-                <h4><strong style="color:green">{{ $schoolName->schoolname ?? 'DPSG' }}</strong></h4>
+                <h4><strong style="color:blue">{{ $schoolName->schoolname ?? 'NW' }}</strong></h4>
                 <h4>
                     <p class="text-muted">Student Portal</p>
                 </h4>
@@ -128,7 +152,7 @@
                         <div class="input-group-prepend">
                             <div class="input-group-text"><i class="fas fa-user"></i></div>
                         </div>
-                        <input type="text" class="form-control @error('surname') is-invalid @enderror" value="{{ $student->surname }}" disabled>
+                        <input type="text" class="form-control @error('fname') is-invalid @enderror" value="{{ $student->fname }}" disabled>
 
                     </div>
                 </div>
@@ -136,20 +160,49 @@
                 <div class="form-group">
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                            <div class="input-group-text"><i class="fas fa-user"></i></div>
+                            <div class="input-group-text"><i class="fas fa-envelope"></i></div>
                         </div>
-                        <input type="text" class="form-control @error('firstname') is-invalid @enderror" value="{{ $student->firstname }}" disabled>
-
+                        <input name="email" type="email" class="form-control @error('email') is-invalid @enderror" placeholder="Enter an Email" required>
+                        @error('email')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
                     </div>
                 </div>
 
                 <div class="form-group">
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                            <div class="input-group-text"><i class="fas fa-user"></i></div>
+                            <div class="input-group-text"><i class="fas fa-phone"></i></div>
                         </div>
-                        <input type="text" class="form-control @error('othernames') is-invalid @enderror" value="{{ $student->othername ?? 'N/A' }}" disabled>
+                        <input name="gsm" type="number" class="form-control @error('gsm') is-invalid @enderror" placeholder="Enter a Phone Number" required>
+                        @error('email')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text"><i class="fas fa-map-marker-alt"></i></div>
+                        </div>
+                        <select name="sor" class="form-control @error('sor') is-invalid @enderror" required>
+                            <option value="" disabled selected>Select State of Origin</option>
+                            @foreach($sors as $stateor)
+                            <option value="{{ $stateor->state_id }}">{{ $stateor->state_name }}</option>
+                            @endforeach
+                        </select>
+                        @error('sor')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+
                 </div>
 
 
@@ -167,6 +220,8 @@
                     </div>
                 </div>
 
+
+
                 <div class="form-group">
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
@@ -181,7 +236,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-block">Register</button>
+                <button type="submit" class="btn btn-orange btn-block">Register</button>
             </form>
 
             <div class="register-footer">
@@ -189,7 +244,7 @@
             </div>
 
             <div class="login-footer">
-                <p class="text-muted">© {{ date('Y') }} {{ $schoolName->schoolname ?? 'DPSG' }}</p>
+                <p class="text-muted">© {{ date('Y') }} {{ $schoolName->schoolname ?? 'NW' }}</p>
             </div>
         </div>
     </div>

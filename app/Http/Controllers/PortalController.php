@@ -23,14 +23,15 @@ class PortalController extends Controller
 {
     use ValidatesPortalUser;
 
-    private const SERVICE_CHARGE = 300;
     private const MAX_UNIT_TO_REGISTER = 40;
-    protected $schoolInfo;
-    protected $student;
-    protected $currentSessionSem;
-    protected $currentSession;
-    protected $currentSemester;
-    protected $feeCalculationService;
+    protected $schoolInfo,
+        $student,
+        $currentSessionSem,
+        $currentSession,
+        $currentSemester,
+        $transactionFee,
+        $feeCalculationService,
+        $portalFee;
 
     public function __construct(FeeCalculationService $feeCalculationService)
     {
@@ -49,9 +50,14 @@ class PortalController extends Controller
             $this->currentSession = $this->currentSessionSem['cs_session'];
             $this->currentSemester = $this->currentSessionSem['cs_sem'];
 
+            $paymentConfig = app('paystackPayment.config');
+            $this->transactionFee = $paymentConfig['transactionFee'];
+            $this->portalFee = $paymentConfig['portalFee'];
+
             view()->share([
                 'student' => $this->student,
                 'currentSession' => $this->currentSession,
+                'currentSemester' => $this->currentSemester,
                 'schoolName' => $this->schoolInfo->schoolname,
             ]);
 
@@ -115,6 +121,7 @@ class PortalController extends Controller
             'next_of_kin' => 'required|string',
             'nok_tel' => 'required|numeric',
             'nok_address' => 'required|string',
+            'gender' => 'required|string',
         ]);
 
 
@@ -125,6 +132,7 @@ class PortalController extends Controller
             'std_genotype' => $validatedData['std_genotype'],
             'std_bloodgrp' => $validatedData['std_bloodgrp'],
             'nationality' => 'NIGERIA',
+            'gender' => $validatedData['gender'],
             'hometown' => strtoupper(strip_tags($validatedData['hometown'])),
             'student_email' => strtolower(strip_tags($validatedData['student_email'])),
             'student_mobiletel' => strip_tags($validatedData['student_mobiletel']),
@@ -193,33 +201,34 @@ class PortalController extends Controller
 
         $ofees = OFee::whereIn('of_id', $selectedFees)->get();
 
-        $libraryBindingCopies = $request->input('copies', 0);
+        //check if selected fee has been paid
 
-        $calculation = $this->feeCalculationService->calculateFees($selectedFees, $libraryBindingCopies);
+        $ofeesPaid = STransaction::getPaidTransactionForOtherFee($this->student->std_logid, $selectedFees, $progid = 1);
 
-        // Final total including service charge
-        $grandTotal = $calculation['grandTotal'];
+        if (!$ofeesPaid->isEmpty()) {
+            $message = "Fees already Paid For the selected Item, Proceed to print your receipt";
+            return redirect('/pfhistory')->with('error', $message);
+        }
+
 
         return view('portal.ofeep', [
             'schoolName' => $this->schoolInfo->schoolname,
             'student' => $this->student,
             'ofees' => $ofees,
-            'bindingamount' => $calculation['totalBindingFee'] ?? 0,
-            'libraryBindingCopies' => $libraryBindingCopies ?? 0,
-            'totalAmount' => $calculation['totalAmount'],
-            'grandTotal' => $grandTotal
+            'serviceCharge' => $this->transactionFee,
         ]);
     }
 
     public function viewOfees(int $rrr)
     {
-        $trans = STransaction::where(['rrr' => $rrr, 'pay_status' => 'Pending'])->get();
+        $trans = STransaction::where(['trans_no' => $rrr, 'pay_status' => 'Pending'])->get();
         if ($trans->isEmpty()) {
             return redirect('/ofees')->with('error', 'Transaction not found.');
         }
 
         return view('portal.viewofee', [
             'trans' => $trans,
+            'serviceCharge' => $this->transactionFee,
         ]);
     }
 
@@ -230,7 +239,8 @@ class PortalController extends Controller
         }
 
         $feeService = new FeeService($this->student);
-        $fees = $feeService->getStudentFees();
+        $fees = $feeService->getStudentFees('all');
+
         return view('portal.fee', [
             'fees' => $fees,
         ]);
@@ -265,7 +275,7 @@ class PortalController extends Controller
         $trans = STransaction::getPaidTransaction($transno)->toArray();
 
 
-        if ($this->isNewStudent($trans)) {
+        /*  if ($this->isNewStudent($trans)) {
             $matNo = $this->generateMatricNo();
 
             if ($matNo) {
@@ -286,10 +296,10 @@ class PortalController extends Controller
 
         // attempt to get student ID from past record
         $studentId = self::getStudentId();
-
+*/
         return view('portal.paymentreceipt', [
             'trans' => $trans,
-            'studentId' => $studentId,
+            // 'studentId' => $studentId,
         ]);
     }
 
@@ -453,7 +463,7 @@ class PortalController extends Controller
     public function previewfee()
     {
         $feeService = new FeeService($this->student);
-        $fees = $feeService->getStudentFees()->toArray();
+        $fees = $feeService->getStudentFees('all')->toArray();
         $paybalance = false;
         $feesToPay = $feeService->getStudentCompulsoryAndRemainingFees($fees);
 
@@ -474,14 +484,20 @@ class PortalController extends Controller
 
     public function viewfees(int $rrr)
     {
-        $trans = STransaction::where(['rrr' => $rrr, 'pay_status' => 'Pending'])->get();
+        $trans = STransaction::where(['trans_no' => $rrr, 'pay_status' => 'Pending'])->get();
         if ($trans->isEmpty()) {
             return redirect('/fees')->with('error', 'Transaction not found.');
         }
 
+        $serviceCharge =  $this->transactionFee;
+
+        if ($trans[0]->trans_semester == 'First Semester' || $trans[0]->policy === 1) {
+            $serviceCharge =  $this->transactionFee +  $this->portalFee;
+        }
+
         return view('portal.viewfee', [
             'trans' => $trans,
-            'serviceCharge' => self::SERVICE_CHARGE
+            'serviceCharge' => $serviceCharge
         ]);
     }
 

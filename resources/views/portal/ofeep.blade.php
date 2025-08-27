@@ -40,26 +40,22 @@
                 </td>
                 <td>{{ $ofee->ofield_name }}</td>
                 <td>
-                    @if ($ofee->of_id == 11)
-                    <!-- Special case for fee_id 11 (Library Binding) -->
-                    {{ number_format($ofee->of_amount) }} (Copies: {{ $libraryBindingCopies }}) |
-                    {{ number_format($ofee->of_amount) }} * {{ $libraryBindingCopies }} = {{ number_format($ofee->of_amount * $libraryBindingCopies) }}
-                    @else
+
                     {{ number_format($ofee->of_amount) }}
-                    @endif
+
 
                 </td>
             </tr>
             @endforeach
-            <input type="hidden" name="copies" value="{{ $libraryBindingCopies }}">
+
 
             <tr class="total-row">
                 <td colspan="2" class="text-right"><strong>TOTAL</strong></td>
-                <td><strong>{{ number_format($grandTotal, 2) }}</strong></td>
+                <td><strong>{{ number_format($ofee->of_amount, 2) }}</strong></td>
             </tr>
         </tbody>
     </table>
-    <button type="button" class="btn btn-success" onclick="confirmPayment({{ $grandTotal }})">Make Payment</button>
+    <button type="button" class="btn btn-success" onclick="confirmPayment({{ $serviceCharge + $ofee->of_amount }})">Make Payment</button>
     <div align="center">
         <img src="{{ asset('public/images/remita.png') }}" alt="Remita" style="max-width: 100px;">
 

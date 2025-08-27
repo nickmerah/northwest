@@ -18,7 +18,7 @@
     {{ session('error') }}
 </div>
 @endif
-<form method="POST" action="{{ $currentSession >= 2024 ? route('savenewfees') : route('savefees') }}">
+<form method="POST" action="{{ route('savenewfees') }}">
     @csrf
     <table class="table table-bordered">
         <thead class="thead-light">
@@ -48,24 +48,6 @@
 
         </tbody>
     </table>
-
-    @if ($fee->field_id == 1)
-    <div class="form-group">
-        <label for="policy"><strong>Select Policy</strong></label>
-        <select class="form-control" id="policy" name="policy" required>
-            <option value="">Select Policy</option>
-
-            @if (!$paybalance)
-            <option value="0">Full Payment</option>
-            <option value="0.6">60%</option>
-            @else
-            <option value="0.4">40%</option>
-            @endif
-        </select>
-    </div>
-    @endif
-
-
 
     <button class="btn btn-success">Make Payment</button>
 </form>

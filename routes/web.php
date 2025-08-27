@@ -105,59 +105,8 @@ Route::middleware('checkLoginUserSession')->group(function () {
     Route::get('/creghistory', [PortalController::class, 'coursereghistory']);
     Route::get('/printcreg/{sess}', [PortalController::class, 'printCourseReg']);
 
+    Route::get('/paystackresponse', [PortalPaymentController::class, 'paystackresponse'])->name('paystackresponse');
+    Route::get('/paystackcancelaction', [PortalPaymentController::class, 'paystackcancelaction'])->name('paystackcancelaction');
+
     Route::get('/testrrr', [PortalPaymentController::class, 'testrrr'])->name('testrrr');
 });
-
-/*
-
-Route::middleware('checkUserSession')->group(function () {
-    Route::get('/clearanceDashboard', [ClearanceController::class, 'home']);
-    Route::get('/clearanceFees', [ClearanceController::class, 'clearancefees']);
-    Route::get('/clearancePayments', [ClearanceController::class, 'phistory']);
-    Route::get('/viewfeepack/{packid}', [ClearanceController::class, 'viewFeePack'])->name('viewfeepack');
-    Route::get('/paypacknow/{packid}', [PaymentController::class, 'payPackNow'])->name('paypacknow');
-    Route::get('/viewfee/{rrr}', [ClearanceController::class, 'viewFees'])->name('viewfee');
-    Route::get('/processfee/{rrr}', [PaymentController::class, 'processFees'])->name('processfee');
-    Route::get('/remitaresponse', [PaymentController::class, 'remitaresponse'])->name('remitaresponse');
-    Route::get('/checkpayment', [PaymentController::class, 'checkpayment'])->name('checkpayment');
-    Route::get('/phistory', [ClearanceController::class, 'phistory'])->name('phistory');
-    Route::get('/printreceipt/{trans_no}', [ClearanceController::class, 'printReceipt'])->name('printreceipt');
-});
-Route::get('remediallogin', [LoginController::class, 'showRemedialLoginForm'])->name('remediallogin');
-Route::middleware('checkRemedialUserSession')->group(function () {
-    Route::get('/remedialDashboard', [RemedialController::class, 'home']);
-    Route::get('/makepayment', [RemedialController::class, 'makepayment']);
-    Route::post('/rfees', [RemedialController::class, 'previewfee'])->name('rfees');
-    Route::post('/payremedialfees', [RemedialPaymentController::class, 'payNow'])->name('payremedialfees');
-    Route::post('/payadditionalremedialfees', [RemedialPaymentController::class, 'payNowAgain'])->name('payadditionalremedialfees');
-    Route::get('/viewremedialfee/{rrr}', [RemedialController::class, 'viewfees'])->name('viewremedialfee');
-    Route::get('/processremedialfees/{rrr}', [RemedialPaymentController::class, 'processFees'])->name('processremedialfees');
-    Route::get('/rphistory', [RemedialController::class, 'phistory'])->name('rphistory');
-    Route::get('/printrreceipt/{trans_no}', [RemedialController::class, 'printReceipt'])->name('printrreceipt');
-    Route::get('/rcheckpayments', [RemedialPaymentController::class, 'checkpayment'])->name('rcheckpayments');
-    Route::get('/rcourses', [RemedialController::class, 'coursereg']);
-    Route::post('/rcourses', [RemedialController::class, 'regcourse'])->name('rcourses');
-    Route::get('/printcourses', [RemedialController::class, 'printCourse'])->name('printcourses');
-});
-
-Route::get('/clear', function () {
-    Artisan::call('make:mail TestMail');
-    return 'Cache cleared!';
-});
-
-Route::get('/send-test-email', function () {
-    $dmail = "nickmerah@gmail.com";
-    $details = [
-        'title' => 'Password Reset Info from Student Portal',
-        'body' => "Mail sent",
-        'info' => "Password Reset Info for Student Portal is as follows:",
-        'email' => $dmail,
-        'passkey' => "1111",
-        'appno' => "TEST111"
-    ];
-
-    print_r($details);
-
-    Mail::to($dmail)->send(new MailNotifier($details));
-});
-*/

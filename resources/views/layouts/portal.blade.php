@@ -193,7 +193,7 @@
             <p> <strong>{{ $student->surname }}</strong>, {{ $student->firstname }} {{ $student->othernames }} <br>
                 <strong> {{ $student->matric_no }}</strong> <br>
                 {{ $student->programmeType->programmet_aname }} {{ $student->level->level_name }} {{ $student->departmentOption->programme_option }}<br>
-                Current Session: <strong>{{ $currentSession }}/{{ $currentSession + 1}} </strong>
+                <strong>Session - Semester: </strong> {{ $currentSession }}/{{ $currentSession + 1}} - {{ $currentSemester}}
             </p>
         </div>
 
@@ -232,14 +232,9 @@
                     <div class="collapse" id="coursesSubmenu">
                         <a href="{{ url('/fees') }}"> > School Fees</a>
                         <a href="{{ url('/ofees') }}"> > Other Fees</a>
-                        <a href="{{ url('/bpfee') }}"> > Previous Fees</a>
                     </div>
 
-                    <a href="#feeSubmenu" data-toggle="collapse" aria-expanded="false" aria-controls="feeSubmenu">2023 Fee Payment <span class="dropdown-indicator">▼</span></a>
-                    <div class="collapse" id="feeSubmenu">
-                        <a href="{{ url('/sfees') }}"> > School Fees</a>
-                        <a href="{{ url('/bfees') }}"> > Balance Fees</a>
-                    </div>
+
 
                     <a href="#courseSubmenu" data-toggle="collapse" aria-expanded="false" aria-controls="courseSubmenu">Course Registration <span class="dropdown-indicator">▼</span></a>
                     <div class="collapse" id="courseSubmenu">
@@ -248,12 +243,7 @@
                         <a href="{{ url('/creghistory') }}"> > History</a>
                     </div>
 
-                    <a href="#hostelSubmenu" data-toggle="collapse" aria-expanded="false" aria-controls="hostelSubmenu">Hostel Accomodation <span class="dropdown-indicator">▼</span></a>
-                    <div class="collapse" id="hostelSubmenu">
-                        <a href="{{ url('/hostels') }}"> > Make Payment</a>
-                        <a href="{{ url('/reserveRoom') }}"> > Reserve Room</a>
-                        <a href="{{ url('/myRoom') }}"> > My Reservation</a>
-                    </div>
+
                     <a href="{{ url('/pfhistory') }}">Payment History</a>
                     <a href="{{ url('/plogout') }}">Logout</a>
                 </div>

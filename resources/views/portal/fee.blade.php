@@ -31,10 +31,10 @@
         </thead>
         <tbody>
             <tr>
-                <th colspan="4">Compulsory Fee Items</th>
+                <th colspan="4">First Semester Fee Items</th>
             </tr>
             @foreach($fees as $index => $fee)
-            @if($fee->group == 1)
+            @if($fee->semester == 'First Semester')
             <tr>
                 <td>{{$loop->iteration}}</td>
                 <td>{{ $fee->field_name }}</td>
@@ -57,12 +57,12 @@
         </thead>
         <tbody>
             <tr>
-                <th colspan="4">School Fee Items</th>
+                <th colspan="4">Second Semester Fee Item</th>
             </tr>
             @foreach($fees as $indexx => $fee)
-            @if($fee->group == 0)
+            @if($fee->semester == 'Second Semester')
             <tr>
-                <td>{{$loop->iteration}}</td>
+                <td>1</td>
                 <td>{{ $fee->field_name }}</td>
                 <td>{{ number_format($fee->amount) }}</td>
 

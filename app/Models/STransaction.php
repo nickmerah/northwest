@@ -138,7 +138,6 @@ class STransaction extends Model
     public static function getPaidTransactionsForSession($sid, $field_ids = [], $progid = 1, $sess = "")
     {
         $sessSem = self::getCurrentSemesterSession($progid);
-
         $psess = !empty($sess) ? $sess : $sessSem['cs_session'];
 
         return self::select(
@@ -147,6 +146,7 @@ class STransaction extends Model
             'rrr',
             't_date',
             'pay_status',
+            'trans_semester',
             'policy'
         )
             ->where([
@@ -163,6 +163,7 @@ class STransaction extends Model
                 'rrr',
                 't_date',
                 'pay_status',
+                'trans_semester',
                 'policy'
             )
             ->get();
@@ -192,5 +193,37 @@ class STransaction extends Model
             'trans_year' => $csess,
             'fee_id' => 1
         ])->get();
+    }
+
+    public static function getPaidTransactionForOtherFee($sid, $feeId, $progid = 1)
+    {
+        $sessSem = self::getCurrentSemesterSession($progid);
+        $psess = !empty($sess) ? $sess : $sessSem['cs_session'];
+
+        return self::select(
+            DB::raw('SUM(trans_amount) as totalamount'),
+            'trans_no',
+            'rrr',
+            't_date',
+            'pay_status',
+            'trans_semester',
+            'policy'
+        )
+            ->where([
+                'log_id' => $sid,
+                'pay_status' => 'Paid',
+                'fee_type' => 'ofees',
+                'trans_year' => $psess,
+                'fee_id' => $feeId,
+            ])
+            ->groupBy(
+                'trans_no',
+                'rrr',
+                't_date',
+                'pay_status',
+                'trans_semester',
+                'policy'
+            )
+            ->get();
     }
 }

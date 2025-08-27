@@ -119,8 +119,8 @@
 
 
                                 <tr>
-                                    <td class="field-label">Student ID</td>
-                                    <td class="field-value">{{ $studentId ?? 'N/A' }}</td>
+                                    <td class="field-label">Matriculation Number</td>
+                                    <td class="field-value">{{ $student->matric_no }}</td>
                                     <td rowspan="4" class="field-label" align="center" style="text-align: center; vertical-align: middle; width: 20%;">
                                         <div class="passport" align="center">
                                             @php
@@ -136,11 +136,7 @@
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td class="field-label">Matriculation Number</td>
-                                    <td class="field-value">{{ $student->matric_no }}</td>
 
-                                </tr>
 
                                 <tr>
                                     <td class="field-label">Fullnames</td>
@@ -155,21 +151,6 @@
                                 </tr>
 
                                 <tr>
-                                    <td class="field-label">Programme Type</td>
-                                    <td class="field-value" colspan="2">{{ $student?->programmeType->programmet_name }}</td>
-
-                                </tr>
-                                <tr>
-                                    <td class="field-label">School</td>
-                                    <td class="field-value" colspan="2">{{ $student?->school->faculties_name }}</td>
-
-                                </tr>
-                                <tr>
-                                    <td class="field-label">Department</td>
-                                    <td class="field-value" colspan="2">{{ $student?->department->departments_name }}</td>
-
-                                </tr>
-                                <tr>
                                     <td class="field-label">Course of Study</td>
                                     <td class="field-value" colspan="2">{{ $student?->departmentOption->programme_option }}</td>
 
@@ -180,13 +161,13 @@
 
                                 </tr>
                                 <tr>
-                                    <td class="field-label">RRR</td>
-                                    <td class="field-value" colspan="2">{{ $trans[0]['rrr'] }}</td>
+                                    <td class="field-label">Transaction ID</td>
+                                    <td class="field-value" colspan="2">{{ $trans[0]['trans_no'] }}</td>
 
                                 </tr>
                                 <tr>
-                                    <td class="field-label">Session</td>
-                                    <td class="field-value" colspan="2">{{ $trans[0]['trans_year'] }}/{{ $trans[0]['trans_year'] + 1 }}</td>
+                                    <td class="field-label">Semester- Session</td>
+                                    <td class="field-value" colspan="2">{{ $trans[0]['trans_semester'] }} - {{ $trans[0]['trans_year'] }}/{{ $trans[0]['trans_year'] + 1 }}</td>
 
                                 </tr>
                                 <tr>

@@ -36,28 +36,25 @@
             <td><strong>{{ number_format($trans->sum('trans_amount') , 2) }} </strong></td>
         </tr>
         <tr class="total-row">
-            <td colspan="2" class="text-right"><strong>RRR</strong></td>
-            <td><strong>{{ $tran->rrr }} </strong></td>
+            <td colspan="2" class="text-right"><strong>TransactionID</strong></td>
+            <td><strong>{{ $tran->trans_no }} </strong></td>
         </tr>
     </tbody>
 </table>
-<button class="btn btn-success" onclick="makePayment({{ $tran->rrr }}, {{ ($trans->sum('trans_amount') + $serviceCharge) }})">Pay Now</button>
+<button class="btn btn-success" onclick="makePayment({{ ($trans->sum('trans_amount') + $serviceCharge) }}, '{{ $tran->rrr }}')">Pay Now</button>
 <div align="center">
     <img src="{{ asset('public/images/remita.png') }}" alt="Remita" style="max-width: 100px;">
 
 </div>
 
-
 <script>
-    function makePayment(rrr, amount) {
-
-        var confirmation = confirm(`You are about to Pay ${amount}, click OK to continue or Cancel to abort.`);
+    function makePayment(amount, rrr) {
+        var confirmation = confirm(`You are about to Pay ${amount} which includes the Transaction Fee. Click OK to continue or Cancel to abort.`);
 
         if (confirmation) {
-            var url = "{{ route('processfees', ['rrr' => '__RRR__']) }}".replace('__RRR__', rrr);
+            var url = `https://checkout.paystack.com/${rrr}`; // Use template literals
             window.location.href = url;
         }
-
     }
 </script>
 

@@ -6,6 +6,7 @@ use App\Models\StdSession;
 use App\Models\STransaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Collection;
 
 class FeeService
 {
@@ -29,36 +30,44 @@ class FeeService
      */
     public function getFees($progId, $levelId, $progType, $residentStatus, $sessionId, $semester)
     {
-
-        return DB::table('fees_amt')
+        $query = DB::table('fees_amt')
             ->join('field', 'fees_amt.field_id', '=', 'field.field_id')
-            ->where(function ($query) use ($progId) {
-                $query->where('fees_amt.prog_id', '=', $progId)
+            ->where(function ($q) use ($progId) {
+                $q->where('fees_amt.prog_id', '=', $progId)
                     ->orWhere('fees_amt.prog_id', '=', 0);
             })
-            ->where(function ($query) use ($levelId) {
-                $query->where('fees_amt.level_id', '=', $levelId)
+            ->where(function ($q) use ($levelId) {
+                $q->where('fees_amt.level_id', '=', $levelId)
                     ->orWhere('fees_amt.level_id', '=', 0);
             })
-            ->where(function ($query) use ($progType) {
-                $query->where('fees_amt.prog_type', '=', $progType)
+            ->where(function ($q) use ($progType) {
+                $q->where('fees_amt.prog_type', '=', $progType)
                     ->orWhere('fees_amt.prog_type', '=', 0);
             })
-            ->where(function ($query) use ($residentStatus) {
-                $query->where('fees_amt.resident_status', '=', $residentStatus)
+            ->where(function ($q) use ($residentStatus) {
+                $q->where('fees_amt.resident_status', '=', $residentStatus)
                     ->orWhere('fees_amt.resident_status', '=', 'general');
             })
-            ->where('fees_amt.sessionid', '=', $sessionId)
-            ->where('fees_amt.semester', '=', $semester)
-            ->select('fees_amt.*', 'field.field_name', 'field.group')
-            ->get();
+            ->where('fees_amt.sessionid', '=', $sessionId);
+
+        if ($semester !== 'both') {
+            $query->where('fees_amt.semester', '=', $semester);
+        }
+
+        return $query->select(
+            'fees_amt.*',
+            'field.field_name',
+            'field.group',
+            'fees_amt.semester'
+        )->get();
     }
+
 
     /**
      * 
      * @return \Illuminate\Support\Collection
      */
-    public function getStudentFees()
+    public function getStudentFees(?string $all = null)
     {
         $sessSem = StdSession::getStdCurrentSession($this->student->stdprogramme_id);
 
@@ -68,47 +77,56 @@ class FeeService
         $residentStatus = $this->student->state_of_origin == 10 ? 'resident' : 'non-resident';
         $sessionId = $sessSem['cs_session'];
         $semester = $sessSem['cs_sem'];
+        if ($all == 'all') {
+            $semester = 'both';
+        }
 
         return $this->getFees($progId, $levelId, $progType, $residentStatus, $sessionId, $semester);
     }
 
-    public function getStudentCompulsoryAndRemainingFees(array $fees)
+    public function getStudentCompulsoryAndRemainingFees(mixed $fees)
     {
+        $fees = is_array($fees) ? $fees : $fees->toArray();
+
         //get compulsory fee
-        $compulsoryfee = array_filter($fees, function ($item) {
-            return $item->group == 1;
+        $firstSemFee = array_filter($fees, function ($item) {
+            return $item->semester == "First Semester";
         });
 
         //get other fee
-        $otherfee = array_filter($fees, function ($item) {
-            return $item->group == 0;
+        $secondSemFee = array_filter($fees, function ($item) {
+            return $item->semester == "Second Semester";
         });
 
         $field_ids = array_map(function ($item) {
             return $item->field_id;
-        }, $compulsoryfee);
+        }, $firstSemFee);
 
         //check if it has been paid
         $paidTransactions = STransaction::getPaidTransactionsForSession($this->student->std_logid, $field_ids);
 
         if ($paidTransactions->isEmpty()) {
-            $fees = $compulsoryfee;
+            $fees = $firstSemFee;
         } else {
-            $fees = $otherfee;
+            $fees = $secondSemFee;
         }
-
 
         $schoolfield_ids = array_map(function ($item) {
             return $item->field_id;
-        }, $otherfee);
+        }, $secondSemFee);
 
         //check if schools has been paid
         $paidTransaction = STransaction::getPaidTransactionsForSession($this->student->std_logid, $schoolfield_ids);
 
-        if ($paidTransaction->isEmpty()) {
-            return $fees;
+        $hasSecondSem = collect($paidTransaction)->contains(function ($transaction) {
+            return $transaction['trans_semester'] === 'Second Semester';
+        });
+
+        // let check if second semester is paid
+        if ($hasSecondSem) {
+            return  [];
         } else {
-            return [];
+            return $fees;
         }
     }
 
@@ -250,9 +268,10 @@ class FeeService
     {
 
         $paidTransaction = STransaction::getPaidTransactionsForSession($this->student->std_logid, 0)->toArray();
+
         $policyPaid = array_sum(array_column($paidTransaction, 'policy'));
 
-        if ($policyPaid == 1) {
+        if ($policyPaid == 3) {
             return true;
         } else {
             return false;
