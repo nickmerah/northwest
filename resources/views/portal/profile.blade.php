@@ -54,6 +54,19 @@
     </div>
 
     <div class="form-group">
+        <label for="gender"><strong>Gender</strong></label>
+        <select class="form-control @error('gender') is-invalid @enderror" id="gender"
+            name="gender" required>
+            <option value="">Select Gender</option>
+            <option value="Male" {{ $student->gender == 'Male' ? 'selected' : '' }}>Male</option>
+            <option value="Female" {{ $student->gender == 'Female' ? 'selected' : '' }}>Female</option>
+        </select>
+        @error('gender')
+        <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div class="form-group">
         <label for="contact_address"><strong>Contact Address</strong></label>
         <textarea class="form-control @error('contact_address') is-invalid @enderror" id="contact_address" rows="3"
             name="contact_address" required>{{ old('contact_address', $student->contact_address) }}</textarea>
@@ -85,20 +98,6 @@
             <option value="CC" {{ $student->std_genotype == 'CC' ? 'selected' : '' }}>CC</option>
         </select>
         @error('std_genotype')
-        <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
-
-
-    <div class="form-group">
-        <label for="gender"><strong>Gender</strong></label>
-        <select class="form-control @error('gender') is-invalid @enderror" id="gender"
-            name="gender" required>
-            <option value="">Select Gender</option>
-            <option value="Male" {{ $student->gender == 'Male' ? 'selected' : '' }}>Male</option>
-            <option value="Female" {{ $student->gender == 'Female' ? 'selected' : '' }}>Female</option>
-        </select>
-        @error('gender')
         <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
@@ -138,6 +137,20 @@
             name="student_mobiletel" value="{{ old('student_mobiletel', $student->student_mobiletel) }}"
             required>
         @error('student_mobiletel')
+        <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div class="form-group">
+        <label for="lga"><strong>LGA</strong></label>
+        <select class="form-control @error('lga') is-invalid @enderror" id="lga"
+            name="lga" required>
+            <option value="">Select LGA</option>
+            @foreach ( $lgas as $lga )
+            <option value="{{ $lga->lga_id }}" {{ $student->local_gov ==  $lga->lga_id ? 'selected' : '' }}>{{ $lga->lga_name }}</option>
+            @endforeach
+        </select>
+        @error('gender')
         <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
@@ -189,11 +202,6 @@
         <label for="fullName"><strong>State of Origin</strong></label>
         <input type="text" class="form-control" id="state_of_origin"
             value="{{ optional($student->stateor)->state_name ?? 'NA' }}" disabled>
-    </div>
-    <div class="form-group">
-        <label for="fullName"><strong>LGA</strong></label>
-        <input type="text" class="form-control" id="local_gov"
-            value="{{ optional($student->lga)->lga_name ?? 'NA' }}" disabled>
     </div>
     <div class="form-group">
         <label for="phoneNumber"><strong>Programme</strong></label>

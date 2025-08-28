@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CourseReg;
-use App\Models\Courses;
-use App\Models\Hostel;
-use App\Models\HostelRoom;
-use App\Models\HostelRoomAllocation;
+use App\Models\Lga;
 use App\Models\OFee;
+use App\Models\Hostel;
+use App\Models\Courses;
+use App\Models\CourseReg;
+use App\Models\HostelRoom;
 use App\Models\SchoolInfo;
 use App\Models\StdSession;
 use App\Models\STransaction;
-use App\Models\StudentLogin;
-use App\Models\StudentProfile;
-use App\Services\FeeCalculationService;
 use App\Services\FeeService;
-use App\Traits\ValidatesPortalUser;
 use Illuminate\Http\Request;
+use App\Models\StudentProfile;
 use Illuminate\Support\Facades\DB;
+use App\Traits\ValidatesPortalUser;
+use App\Models\HostelRoomAllocation;
+use App\Services\FeeCalculationService;
 
 class PortalController extends Controller
 {
@@ -99,7 +99,12 @@ class PortalController extends Controller
 
     public function biodata()
     {
-        return view('portal.profile');
+        $lgas = Lga::where('state_id', $this->student->state_of_origin)->get();
+
+        return view(
+            'portal.profile',
+            compact('lgas')
+        );
     }
 
     public function passport()
@@ -122,6 +127,7 @@ class PortalController extends Controller
             'nok_tel' => 'required|numeric',
             'nok_address' => 'required|string',
             'gender' => 'required|string',
+            'lga' => 'required|integer',
         ]);
 
 
@@ -133,6 +139,7 @@ class PortalController extends Controller
             'std_bloodgrp' => $validatedData['std_bloodgrp'],
             'nationality' => 'NIGERIA',
             'gender' => $validatedData['gender'],
+            'local_gov' => $validatedData['lga'],
             'hometown' => strtoupper(strip_tags($validatedData['hometown'])),
             'student_email' => strtolower(strip_tags($validatedData['student_email'])),
             'student_mobiletel' => strip_tags($validatedData['student_mobiletel']),
