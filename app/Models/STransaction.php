@@ -60,7 +60,7 @@ class STransaction extends Model
                 throw new \InvalidArgumentException('Invalid transaction number format.');
             }
 
-            $transno = (int) $transno;
+            // $transno = (int) $transno;
             // $sessSem = self::getCurrentSemesterSession();
             $transactions = self::where([
                 ['trans_no', '=', $transno],

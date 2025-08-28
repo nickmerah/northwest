@@ -226,7 +226,7 @@ class PortalController extends Controller
         ]);
     }
 
-    public function viewOfees(int $rrr)
+    public function viewOfees($rrr)
     {
         $trans = STransaction::where(['trans_no' => $rrr, 'pay_status' => 'Pending'])->get();
         if ($trans->isEmpty()) {
@@ -276,7 +276,7 @@ class PortalController extends Controller
         ];
     }
 
-    public function printReceipt(int $transno)
+    public function printReceipt($transno)
     {
 
         $trans = STransaction::getPaidTransaction($transno)->toArray();
@@ -489,7 +489,7 @@ class PortalController extends Controller
         ]);
     }
 
-    public function viewfees(int $rrr)
+    public function viewfees($rrr)
     {
         $trans = STransaction::where(['trans_no' => $rrr, 'pay_status' => 'Pending'])->get();
         if ($trans->isEmpty()) {
@@ -508,7 +508,7 @@ class PortalController extends Controller
         ]);
     }
 
-    public function viewsfees(int $rrr)
+    public function viewsfees($rrr)
     {
         $trans = STransaction::where(['rrr' => $rrr, 'pay_status' => 'Pending'])->get();
         if ($trans->isEmpty()) {

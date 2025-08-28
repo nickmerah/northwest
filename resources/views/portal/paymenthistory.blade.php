@@ -22,7 +22,7 @@
     <thead class="thead-light">
         <tr>
             <th>S/N</th>
-            <th>RRR</th>
+            <th>TransID</th>
             <th>Amount</th>
             <th>Session</th>
             <th>Date</th>
@@ -33,7 +33,7 @@
         @foreach($trans as $index => $tran)
         <tr>
             <td>{{ $index + 1 }}</td>
-            <td>{{ $tran->rrr }}</td>
+            <td>{{ $tran->trans_no }}</td>
             <td>{{ number_format($tran->totalamount, 2) }}</td>
             <td>{{ $tran->trans_year }}</td>
             <td>{{ \Carbon\Carbon::parse($tran->t_date)->format('d-M-Y') }}</td>
